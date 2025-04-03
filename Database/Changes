@@ -1,0 +1,27 @@
+CREATE TABLE Users (
+    user_id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255) UNIQUE
+);
+
+CREATE TABLE Guests (
+    guest_id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE REFERENCES Users(user_id)
+);
+
+CREATE TABLE Hosts (
+    host_id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE REFERENCES Users(user_id)
+);
+
+CREATE TABLE Representatives (
+    rep_id SERIAL PRIMARY KEY,
+    host_id INT REFERENCES Hosts(host_id) -- A rep works for a host
+);
+
+CREATE TABLE LocalProfessionals (
+    pro_id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE REFERENCES Users(user_id)
+);
+
+every type connects to user entity, local professional add profession, relation host-property(n:m) 
