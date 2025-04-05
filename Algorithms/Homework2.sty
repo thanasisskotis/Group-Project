@@ -39,4 +39,37 @@
     \end{algorithmic}
 \end{algorithm}
 
+
+
+\section*{Exercise 4}
+
+\begin{algorithm}
+\caption{\begin{otherlanguage}{greek}Χρωματισμός Διαστημάτων με Ελάχιστα Χρώματα\end{otherlanguage}}
+\begin{algorithmic}[1] 
+\State \begin{otherlanguage}{greek} Είσοδος $Set = \{(l_i, r_i)\}_{i=1}^n$ από $n$ ανοιχτά διαστήματα και ο αριθμός των διαστημάτων $n$.\end{otherlanguage}
+\State \begin{otherlanguage}{greek} Επιστρέφει ένα πίνακα $ColourArray[1 \ldots n]$ όπου $n$ τα διαστήματα και τιμές του το κάθε χρώμα(τα χρώματα θα συμβολίζονται με αριθμούς).\end{otherlanguage}
+\State  \begin{otherlanguage}{greek} Αρχικοποίησε τον πίνακα $IntervalArray$ και ταξινόμησε το σύνολο ως προς το αριστερό άκρο του κάθε διαστήματος στον πίνακα κρατώντας ως τιμές του τα 2 άκρα.\end{otherlanguage}
+\State \begin{otherlanguage}{greek} Αρχικοποίησε $ColourArray$ για $n$ θέσεις με τιμές 0.\end{otherlanguage}
+\State \begin{otherlanguage}{greek} Αρχικοποίησε $CurrentColour \gets 1$.\end{otherlanguage}
+\For{$i \gets 1$ \textbf{\begin{otherlanguage}{greek} μέχρι \end{otherlanguage}} $n$}
+    \State $CurrentColour \gets 1$
+    \For{$j \gets 1 \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $i}
+        \If{$( IntervalArray[j].secondElement > IntervalArray[i].firstElement \textbf{ and } CurrentColour \neq ColourArray[j] )$}
+            \State $ColourArray[i] \gets CurrentColour$
+            \State \begin{otherlanguage}{greek} Βγες από την επανάληψη. \end{otherlanguage}
+        \EndIf
+    \EndFor
+    \If{$( ColourArray[i] = 0 )$}
+        \State $ColourArray \gets CurrentColour$
+    \EndIf
+\EndFor
+\State \textbf{\begin{otherlanguage}{greek} Επιστροφή \end{otherlanguage}} \begin{otherlanguage}{greek} Ο πίνακας $ColourArray[1 \ldots n]$.\end{otherlanguage}
+
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+
 \end{document}
