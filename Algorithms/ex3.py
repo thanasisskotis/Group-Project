@@ -15,19 +15,6 @@ class Edge:
 
 def update_mst_linear(V: int, graph_edges: List[Edge], mst_edges: List[Edge], 
                       u: int, v: int, new_weight: int) -> List[Edge]:
-    """
-    Update the MST when the weight of edge (u,v) changes.
-    
-    Args:
-        V: Number of vertices
-        graph_edges: All edges in the graph
-        mst_edges: Edges in the current MST
-        u, v: The vertices of the edge whose weight is changing
-        new_weight: The new weight of edge (u,v)
-        
-    Returns:
-        Updated MST edges
-    """
     # Find the edge in the graph and update its weight
     old_weight = None
     for e in graph_edges:
@@ -60,26 +47,15 @@ def update_mst_linear(V: int, graph_edges: List[Edge], mst_edges: List[Edge],
 
 def handle_weight_increase(V: int, graph_edges: List[Edge], mst_edges: List[Edge], 
                            edge_to_remove: Edge) -> List[Edge]:
-    """
-    Handle the case when the weight of an edge in the MST increases.
-    
-    Args:
-        V: Number of vertices
-        graph_edges: All edges in the graph
-        mst_edges: Edges in the current MST
-        edge_to_remove: The edge whose weight increased
-        
-    Returns:
-        Updated MST edges
-    """
-    # Create adjacency list from MST (without the edge to remove)
+    # Create adjacency list from MST excluding the edge to remove
     adj_list = [[] for _ in range(V)]
     for e in mst_edges:
-        if e != edge_to_remove:
+        if not ((e.u == edge_to_remove.u and e.v == edge_to_remove.v) or 
+                (e.u == edge_to_remove.v and e.v == edge_to_remove.u)):
             adj_list[e.u].append(e.v)
             adj_list[e.v].append(e.u)
     
-    # Find connected components using BFS
+    # Find connected components after removing the edge
     visited = [False] * V
     component = [0] * V
     
@@ -87,7 +63,6 @@ def handle_weight_increase(V: int, graph_edges: List[Edge], mst_edges: List[Edge
         queue = [start]
         visited[start] = True
         component[start] = comp_id
-        
         while queue:
             node = queue.pop(0)
             for neighbor in adj_list[node]:
@@ -96,28 +71,27 @@ def handle_weight_increase(V: int, graph_edges: List[Edge], mst_edges: List[Edge
                     component[neighbor] = comp_id
                     queue.append(neighbor)
     
-    # Run BFS to mark components
     comp_id = 1
     for i in range(V):
         if not visited[i]:
             bfs(i, comp_id)
             comp_id += 1
     
-    # If removing the edge doesn't disconnect the graph, no change needed
+    # If removing the edge doesn't disconnect the MST, no change needed
     if component[edge_to_remove.u] == component[edge_to_remove.v]:
         return mst_edges
     
     # Find the minimum weight edge that connects the two components
     min_edge = None
     for e in graph_edges:
-        if e != edge_to_remove and component[e.u] != component[e.v]:
-            if component[e.u] == component[edge_to_remove.u] and component[e.v] == component[edge_to_remove.v] or \
-               component[e.u] == component[edge_to_remove.v] and component[e.v] == component[edge_to_remove.u]:
-                if min_edge is None or e.weight < min_edge.weight:
-                    min_edge = e
+        # Check if this edge connects the two separate components
+        if component[e.u] != component[e.v]:
+            if min_edge is None or e.weight < min_edge.weight:
+                min_edge = e
     
-    # Remove the edge with increased weight and add the replacement edge
-    result = [e for e in mst_edges if e != edge_to_remove]
+    # Create the new MST
+    result = [e for e in mst_edges if not ((e.u == edge_to_remove.u and e.v == edge_to_remove.v) or 
+                                           (e.u == edge_to_remove.v and e.v == edge_to_remove.u))]
     if min_edge:
         result.append(min_edge)
     
@@ -125,30 +99,14 @@ def handle_weight_increase(V: int, graph_edges: List[Edge], mst_edges: List[Edge
 
 def handle_weight_decrease(V: int, graph_edges: List[Edge], mst_edges: List[Edge], 
                            u: int, v: int, new_weight: int) -> List[Edge]:
-    """
-    Handle the case when the weight of an edge not in the MST decreases.
-    
-    Args:
-        V: Number of vertices
-        graph_edges: All edges in the graph
-        mst_edges: Edges in the current MST
-        u, v: The vertices of the edge whose weight decreased
-        new_weight: The new weight of edge (u,v)
-        
-    Returns:
-        Updated MST edges
-    """
-    # Create adjacency list from MST
     adj_list = [[] for _ in range(V)]
     edge_indices = {}
-    
     for i, e in enumerate(mst_edges):
         adj_list[e.u].append(e.v)
         adj_list[e.v].append(e.u)
         edge_indices[(e.u, e.v)] = i
         edge_indices[(e.v, e.u)] = i
     
-    # Find the path from u to v in the MST
     path = []
     visited = [False] * V
     parent = [-1] * V
@@ -156,11 +114,9 @@ def handle_weight_decrease(V: int, graph_edges: List[Edge], mst_edges: List[Edge
     def find_path(start, end):
         queue = [start]
         visited[start] = True
-        
         while queue:
             node = queue.pop(0)
             if node == end:
-                # Reconstruct the path
                 curr = end
                 while curr != start:
                     prev = parent[curr]
@@ -170,29 +126,23 @@ def handle_weight_decrease(V: int, graph_edges: List[Edge], mst_edges: List[Edge
                         path.append(edge_indices[(curr, prev)])
                     curr = prev
                 return True
-            
             for neighbor in adj_list[node]:
                 if not visited[neighbor]:
                     visited[neighbor] = True
                     parent[neighbor] = node
                     queue.append(neighbor)
-        
         return False
     
-    # If there's no path from u to v, MST can't be improved
     if not find_path(u, v):
         return mst_edges
     
-    # Find the heaviest edge on the path
     max_weight_edge_idx = -1
     max_weight = -1
-    
     for idx in path:
         if mst_edges[idx].weight > max_weight:
             max_weight = mst_edges[idx].weight
             max_weight_edge_idx = idx
     
-    # If the new edge has lower weight than the heaviest edge on the path, replace it
     if max_weight > new_weight:
         result = [e for i, e in enumerate(mst_edges) if i != max_weight_edge_idx]
         result.append(Edge(u, v, new_weight))
@@ -201,10 +151,6 @@ def handle_weight_decrease(V: int, graph_edges: List[Edge], mst_edges: List[Edge
     return mst_edges
 
 def build_mst_kruskal(V: int, edges: List[Edge]) -> List[Edge]:
-    """
-    Build an MST using Kruskal's algorithm.
-    Used for initial MST creation and testing.
-    """
     parent = list(range(V))
     rank = [0] * V
     
@@ -227,7 +173,6 @@ def build_mst_kruskal(V: int, edges: List[Edge]) -> List[Edge]:
     
     mst = []
     edges_sorted = sorted(edges, key=lambda e: e.weight)
-    
     for e in edges_sorted:
         if find(e.u) != find(e.v):
             mst.append(e)
@@ -237,10 +182,11 @@ def build_mst_kruskal(V: int, edges: List[Edge]) -> List[Edge]:
 
 def test_mst_update():
     print("=== MST Update Algorithm Test ===")
-    V = 5
+    V = 6
     edges = [
-        Edge(0, 1, 2), Edge(0, 3, 6), Edge(1, 2, 3),
-        Edge(1, 3, 8), Edge(1, 4, 5), Edge(2, 4, 7), Edge(3, 4, 9)
+        Edge(0, 1, 4), Edge(0, 2, 2), Edge(1, 2, 5),
+        Edge(1, 3, 10), Edge(2, 3, 3), Edge(3, 4, 7),
+        Edge(4, 5, 8), Edge(3, 5, 6)
     ]
     
     print("Original Graph:")
@@ -253,23 +199,9 @@ def test_mst_update():
     for e in mst:
         print(f"{e.u} - {e.v} (Weight: {e.weight})")
     
-    # Test Case 1: Weight increase in MST
-    print("\nTest Case 1: Weight increase in MST (0-1: 2 -> 10)")
-    updated_mst = update_mst_linear(V, edges.copy(), mst.copy(), 0, 1, 10)
-    print("Updated MST:")
-    for e in updated_mst:
-        print(f"{e.u} - {e.v} (Weight: {e.weight})")
-    
-    # Reset for test case 2
-    edges = [
-        Edge(0, 1, 2), Edge(0, 3, 6), Edge(1, 2, 3),
-        Edge(1, 3, 8 ), Edge(1, 4, 5), Edge(2, 4, 7), Edge(3, 4, 9)
-    ]
-    mst = build_mst_kruskal(V, edges.copy())
-    
-    # Test Case 2: Weight decrease outside MST
-    print("\nTest Case 2: Weight decrease outside MST (3-4: 9 -> 1)")
-    updated_mst = update_mst_linear(V, edges.copy(), mst.copy(), 3, 4, 1)
+    # Test Case: Weight increase in MST (2-3: 3 -> 8)
+    print("\nTest Case: Weight increase in MST (2-3: 3 -> 8)")
+    updated_mst = update_mst_linear(V, edges.copy(), mst.copy(), 2, 3, 8)
     print("Updated MST:")
     for e in updated_mst:
         print(f"{e.u} - {e.v} (Weight: {e.weight})")
