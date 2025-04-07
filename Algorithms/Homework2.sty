@@ -53,10 +53,12 @@
 \State \begin{otherlanguage}{greek} Αρχικοποίησε $CurrentColour \gets 1$.\end{otherlanguage}
 \For{$i \gets 1$ \textbf{\begin{otherlanguage}{greek} μέχρι \end{otherlanguage}} $n$}
     \State $CurrentColour \gets 1$
-    \For{$j \gets 1 \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $i}
-        \If{$( IntervalArray[j].secondElement > IntervalArray[i].firstElement \textbf{ and } CurrentColour \neq ColourArray[j] )$}
+    \For{$j \gets 1  \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $i}
+        \If{$( IntervalArray[j].secondElement > IntervalArray[i].firstElement \textbf{ and } CurrentColour = ColourArray[j] )$}
             \State $ColourArray[i] \gets CurrentColour$
             \State \begin{otherlanguage}{greek} Βγες από την επανάληψη. \end{otherlanguage}
+        \Else
+            \State CurrentColour = CurrentColour + 1
         \EndIf
     \EndFor
     \If{$( ColourArray[i] = 0 )$}
@@ -67,7 +69,6 @@
 
 \end{algorithmic}
 \end{algorithm}
-
 
 
 
