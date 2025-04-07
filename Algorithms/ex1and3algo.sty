@@ -1,0 +1,251 @@
+\documentclass{article}
+\usepackage[greek,english]{babel}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{fullpage}
+\usepackage{textgreek}
+
+\begin{document}
+
+\section*{Exercise 1}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetKwFunction{FMain}{find\_shortest\_directed\_cycle}
+\SetKwProg{Fn}{Function}{:}{}
+\Fn{\FMain{$n$, $adj$}}{
+    $min\_cycle \gets INF$ \;
+    
+    \For{$u \gets 0$ \KwTo $n - 1$}{
+        $dist \gets$ \textgreek{Πίνακας μεγέθους n με όλες τις τιμές αρχικοποιημένες ως $INF$}\;\\
+        $dist[u] \gets 0$ \;\\
+        $pq \gets$ \textgreek{Ουρά προτεραιότητας ακμών με αρχικό στοιχείο το} $(0, u)$ \;
+
+        \While{$pq$ is not empty}{
+            $(d, v) \gets pq.pop()$ \;\\
+            \If{$d > dist[v]$}{
+                \textbf{continue} \;
+            }
+            \ForEach{$(to, w) \in adj[v]$}{
+                \If{$dist[to] > d + w$}{
+                    $dist[to] \gets d + w$ \;\\
+                    $pq.push((dist[to], to))$ \;
+                }
+            }
+        }
+
+        \For{$v \gets 0$ \KwTo $n - 1$}{
+            \ForEach{$(to, w) \in adj[v]$}{
+                \If{$to = u$ and $dist[v] \ne INF$}{
+                    $min\_cycle \gets \min(min\_cycle, dist[v] + w)$ \;
+                }
+            }
+        }
+    }
+
+    \Return $-1$ if $min\_cycle = INF$, otherwise $min\_cycle$ \;
+}
+\caption{Find the shortest directed cycle in a weighted graph}
+\end{algorithm}
+
+\section*{\textgreek{Ανάλυση Πολυπλοκότητας}}
+
+\textgreek{Η συνάρτηση} \texttt{find\_shortest\_directed\_cycle} \textgreek{διατρέχει σε κάθε κορυφή $u$ στον γράφο και τρέχει τον αλγόριθμο του}
+\textnormal{Dijkstra} \textgreek{από το $u$. Μετά από αυτό διαπερνά όλες τις ακμές για να ελέγξει αν υπάρχει κύκλος που τελειώνει στο $u$.}
+
+\textgreek{Έστω: }
+\begin{itemize}
+    \item $n$ \textgreek{να είναι ο αριθμός των κορυφών του γράφου},
+    \item $m$ \textgreek{να είναι ο αριθμός των κατευθυνόμενων ακμών του γράφου}.
+\end{itemize}
+
+\subsection*{\textgreek{Ανάλυση βήμα προς βήμα}}
+
+\begin{itemize}
+    \item \textgreek{Για κάθε κορυφή $u$, τρέχουμε τον αλγόριθμο} \textnormal{Dijkstra} \textgreek{που παίρνει χρόνο $O(m \log n)$}
+    \item \textgreek{Μετά από αυτό, ελέγχουμε αν κάποια από όλες τις} \textnormal{m}
+    \textgreek{ακμές σχηματίζουν κύκλο με την κορυφή $u$, που παίρνει χρόνο $O(m)$}
+\end{itemize}
+
+\textgreek{Οπότε για κάθε μία από τις $n$ κορυφές, το κόστος είναι :}
+
+\[
+\sum_{u=1}^{n} \left( O(m \log n) + O(m) \right)
+= \sum_{u=1}^{n} O(m \log n + m)
+= \sum_{u=1}^{n} O(m (\log n + 1))
+\]
+
+\textgreek{Εφόσον $\log n + 1 = O(\log n)$ , απλοποιούμε σε:}
+
+\[
+= \sum_{u=1}^{n} O(m \log n) = O(nm \log n)
+\]
+
+\subsection*{\textgreek{Συμπέρασμα: }}
+
+\textgreek{Η συνολική πολυπλκότητα είναι: }
+\[
+\boxed{O(nm \log n)}
+\]
+
+\section*{Exercise 3}
+
+
+\begin{algorithm}
+\caption{Update MST }
+\begin{algorithmic}[1]
+\State \textbf{Input:} 
+\State \quad \( V \) \text{ (Number of vertices)}
+\State \quad \( \text{graph\_edges} \) \text{ (List of graph edges with weights)}
+\State \quad \( \text{mst\_edges} \) \text{ (List of edges in the current MST)}
+\State \quad \( u, v \) \text{ (Vertices of the edge whose weight is being updated)}
+\State \quad \( \text{new\_weight} \) \text{ (New weight of the edge \( (u, v) \))}
+\State \textbf{Output:} Updated MST edges list
+
+\State \( \text{old\_weight} \gets \text{None} \)
+\For{each edge \( e \in \text{graph\_edges} \)}
+    \If{(e.u == u and e.v == v) or (e.u == v and e.v == u)}
+        \State \( \text{old\_weight} \gets e.\text{weight} \)
+        \State \( e.\text{weight} \gets \text{new\_weight} \)
+        \State \textbf{break}
+    \EndIf
+\EndFor
+
+\If{\( \text{old\_weight} \) is \( \text{None} \)}
+    \State \text{raise an error: Edge \( (u, v) \) not found in the graph}
+\EndIf
+
+\State \( \text{edge\_in\_mst} \gets \text{None} \)
+\For{each edge \( e \in \text{mst\_edges} \)}
+    \If{(e.u == u and e.v == v) or (e.u == v and e.v == u)}
+        \State \( \text{edge\_in\_mst} \gets e \)
+        \State \( e.\text{weight} \gets \text{new\_weight} \)
+        \State \textbf{break}
+    \EndIf
+\EndFor
+
+\If{edge\_in\_mst is not None and new\_weight > old\_weight}
+    \State \textbf{return} \texttt{handle\_weight\_increase}(V, graph\_edges, mst\_edges, edge\_in\_mst)
+\EndIf
+
+\If{edge\_in\_mst is None and new\_weight < old\_weight}
+    \State \textbf{return} \texttt{handle\_weight\_decrease}(V, graph\_edges, mst\_edges, u, v, new\_weight)
+\EndIf
+
+\State \textbf{return} mst\_edges
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Handle Weight Increase}
+\begin{algorithmic}[1]
+\State \textbf{Input:} \( V, \text{graph\_edges}, \text{mst\_edges}, \text{edge\_to\_remove} \)
+\State \textbf{Output:} Updated MST edges list
+
+\State \text{adj\_list} \(\gets\) Empty adjacency list for \( V \) vertices
+\For{each edge \( e \in \text{mst\_edges} \)}
+    \If{not \((e.u == \text{edge\_to\_remove}.u \text{ and } e.v == \text{edge\_to\_remove}.v)\) or \((e.u == \text{edge\_to\_remove}.v \text{ and } e.v == \text{edge\_to\_remove}.u)\))}
+        \State \text{adj\_list[e.u].append(e.v)}
+        \State \text{adj\_list[e.v].append(e.u)}
+    \EndIf
+\EndFor
+
+\State \text{visited} \(\gets\) Array of False values for \( V \)
+\State \text{component} \(\gets\) Array of 0 values for \( V \)
+\State \text{comp\_id} \(\gets\) 1
+
+\For{i = 0 to V-1}
+    \If{visited[i] is False}
+        \State \text{bfs(i, comp\_id)}  \Comment{Breadth-first search to find components}
+        \State comp\_id \(\gets\) comp\_id + 1
+    \EndIf
+\EndFor
+
+\If{\( \text{component[edge\_to\_remove.u]} == \text{component[edge\_to\_remove.v]} \)}
+    \State \textbf{return} \text{mst\_edges}
+\EndIf
+
+\State \text{min\_edge} \(\gets\) None
+\For{each edge \( e \in \text{graph\_edges} \)}
+    \If{\( \text{component[e.u]} \neq \text{component[e.v]} \)}
+        \If{min\_edge is None or \( e.\text{weight} < \text{min\_edge.weight} \)}
+            \State \( \text{min\_edge} \gets e \)
+        \EndIf
+    \EndIf
+\EndFor
+
+\State \text{result} \(\gets\) List of edges in \text{mst\_edges} excluding \text{edge\_to\_remove}
+\If{min\_edge is not None}
+    \State \text{result.append(min\_edge)}
+\EndIf
+
+\State \textbf{return} result
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Handle Weight Decrease}
+\begin{algorithmic}[1]
+\State \textbf{Input:} \( V, \text{graph\_edges}, \text{mst\_edges}, u, v, \text{new\_weight} \)
+\State \textbf{Output:} Updated MST edges list
+
+\State \text{adj\_list} \(\gets\) Empty adjacency list for \( V \)
+\State \text{edge\_indices} \(\gets\) Dictionary of edge indices in \text{mst\_edges}
+\For{each edge \( e \in \text{mst\_edges} \)}
+    \State \text{adj\_list[e.u].append(e.v)}
+    \State \text{adj\_list[e.v].append(e.u)}
+    \State \text{edge\_indices[(e.u, e.v)]} = index of \( e \)
+    \State \text{edge\_indices[(e.v, e.u)]} = index of \( e \)
+\EndFor
+
+\State \text{path} \(\gets\) Empty list
+\State \text{visited} \(\gets\) Array of False values for \( V \)
+\State \text{parent} \(\gets\) Array of -1 values for \( V \)
+
+\State \text{find\_path}(u, v) \Comment{Find the path between \( u \) and \( v \) in the MST}
+\If{path exists}
+    \State \text{max\_weight\_edge\_idx} \(\gets\) Index of the heaviest edge in the path
+    \If{max\_weight $>$ new\_weight}
+        \State \text{result} \(\gets\) List of edges excluding the heaviest edge
+        \State \text{result.append(Edge(u, v, new\_weight))}
+        \State \textbf{return} result
+    \EndIf
+\EndIf
+
+\State \textbf{return} mst\_edges
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Find Path Between Two Vertices in MST (BFS)}
+\begin{algorithmic}[1]
+\Function{find\_path}{start, end}
+    \State \text{Initialize a queue} \( q \gets \{start\} \)
+    \State \( \text{visited[start]} \gets \text{True} \)
+    \While{\( q \) is not empty}
+        \State \( \text{node} \gets q.pop() \)
+        \If{\( \text{node} == \text{end} \)}
+            \State \text{Reconstruct the path using parent array}
+            \State \( \text{curr} \gets \text{end} \)
+            \While{\( \text{curr} \ne \text{start} \)}
+                \State \( \text{prev} \gets \text{parent[curr]} \)
+                \State \text{Add edge index between } \( \text{curr, prev} \) \text{ to path}
+                \State \( \text{curr} \gets \text{prev} \)
+            \EndWhile
+            \State \Return \text{True}
+        \EndIf
+        \ForAll{neighbor \( \in \text{adj\_list[node]} \)}
+            \If{not \( \text{visited[neighbor]} \)}
+                \State \( \text{visited[neighbor]} \gets \text{True} \)
+                \State \( \text{parent[neighbor]} \gets \text{node} \)
+                \State \( q.push(neighbor) \)
+            \EndIf
+        \EndFor
+    \EndWhile
+    \State \Return False
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}
