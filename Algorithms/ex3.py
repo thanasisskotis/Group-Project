@@ -99,56 +99,49 @@ def handle_weight_increase(V: int, graph_edges: List[Edge], mst_edges: List[Edge
 
 def handle_weight_decrease(V: int, graph_edges: List[Edge], mst_edges: List[Edge], 
                            u: int, v: int, new_weight: int) -> List[Edge]:
+    # Build adjacency list from current MST
     adj_list = [[] for _ in range(V)]
-    edge_indices = {}
-    for i, e in enumerate(mst_edges):
-        adj_list[e.u].append(e.v)
-        adj_list[e.v].append(e.u)
-        edge_indices[(e.u, e.v)] = i
-        edge_indices[(e.v, e.u)] = i
+    for e in mst_edges:
+        adj_list[e.u].append((e.v, e))
+        adj_list[e.v].append((e.u, e))
     
-    path = []
-    visited = [False] * V
+    # Find the path from u to v in the MST
     parent = [-1] * V
+    edge_to_parent = [None] * V
+    visited = [False] * V
     
-    def find_path(start, end):
-        queue = [start]
-        visited[start] = True
-        while queue:
-            node = queue.pop(0)
-            if node == end:
-                curr = end
-                while curr != start:
-                    prev = parent[curr]
-                    if prev < curr:
-                        path.append(edge_indices[(prev, curr)])
-                    else:
-                        path.append(edge_indices[(curr, prev)])
-                    curr = prev
-                return True
-            for neighbor in adj_list[node]:
-                if not visited[neighbor]:
-                    visited[neighbor] = True
-                    parent[neighbor] = node
-                    queue.append(neighbor)
+    def dfs(node, target):
+        if node == target:
+            return True
+        visited[node] = True
+        for neighbor, edge in adj_list[node]:
+            if not visited[neighbor]:
+                parent[neighbor] = node
+                edge_to_parent[neighbor] = edge
+                if dfs(neighbor, target):
+                    return True
         return False
     
-    if not find_path(u, v):
+    if not dfs(u, v):
         return mst_edges
     
-    max_weight_edge_idx = -1
-    max_weight = -1
-    for idx in path:
-        if mst_edges[idx].weight > max_weight:
-            max_weight = mst_edges[idx].weight
-            max_weight_edge_idx = idx
+    # Find the edge with the maximum weight in the path from u to v
+    curr = v
+    max_edge = None
+    while curr != u:
+        edge = edge_to_parent[curr]
+        if max_edge is None or edge.weight > max_edge.weight:
+            max_edge = edge
+        curr = parent[curr]
     
-    if max_weight > new_weight:
-        result = [e for i, e in enumerate(mst_edges) if i != max_weight_edge_idx]
+    # If the new edge has smaller weight, replace the max weight edge
+    if max_edge and max_edge.weight > new_weight:
+        result = [e for e in mst_edges if e != max_edge]
         result.append(Edge(u, v, new_weight))
         return result
     
     return mst_edges
+
 
 def build_mst_kruskal(V: int, edges: List[Edge]) -> List[Edge]:
     parent = list(range(V))
@@ -200,8 +193,9 @@ def test_mst_update():
         print(f"{e.u} - {e.v} (Weight: {e.weight})")
     
     # Test Case: Weight increase in MST (2-3: 3 -> 8)
-    print("\nTest Case: Weight increase in MST (2-3: 3 -> 8)")
-    updated_mst = update_mst_linear(V, edges.copy(), mst.copy(), 2, 3, 8)
+    print("\nTest Case: Weight increase in MST (4-5: 8 -> 5)")
+    updated_mst = update_mst_linear(V, edges.copy(), mst.copy(), 4, 5, 5)
+    updated_mst = update_mst_linear(V, edges.copy(), mst.copy(), 3, 5, 4)
     print("Updated MST:")
     for e in updated_mst:
         print(f"{e.u} - {e.v} (Weight: {e.weight})")
