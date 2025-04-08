@@ -10,43 +10,44 @@
 \begin{document}
 
 \section*{Exercise 1}
-\begin{algorithm}[H]
-\DontPrintSemicolon
-\SetKwFunction{FMain}{find\_shortest\_directed\_cycle}
-\SetKwProg{Fn}{Function}{:}{}
-\Fn{\FMain{$n$, $adj$}}{
-    $min\_cycle \gets INF$ \;
-    
-    \For{$u \gets 0$ \KwTo $n - 1$}{
-        $dist \gets$ \textgreek{Πίνακας μεγέθους n με όλες τις τιμές αρχικοποιημένες ως $INF$}\;\\
-        $dist[u] \gets 0$ \;\\
-        $pq \gets$ \textgreek{Ουρά προτεραιότητας ακμών με αρχικό στοιχείο το} $(0, u)$ \;
-
-        \While{$pq$ is not empty}{
-            $(d, v) \gets pq.pop()$ \;\\
-            \If{$d > dist[v]$}{
-                \textbf{continue} \;
-            }
-            \ForEach{$(to, w) \in adj[v]$}{
-                \If{$dist[to] > d + w$}{
-                    $dist[to] \gets d + w$ \;\\
-                    $pq.push((dist[to], to))$ \;
-                }
-            }
-        }
-
-        \For{$v \gets 0$ \KwTo $n - 1$}{
-            \ForEach{$(to, w) \in adj[v]$}{
-                \If{$to = u$ and $dist[v] \ne INF$}{
-                    $min\_cycle \gets \min(min\_cycle, dist[v] + w)$ \;
-                }
-            }
-        }
-    }
-
-    \Return $-1$ if $min\_cycle = INF$, otherwise $min\_cycle$ \;
-}
-\caption{Find the shortest directed cycle in a weighted graph}
+\begin{algorithm}
+\caption{FindShortestDirectedCycle}
+\begin{algorithmic}[1]
+\Procedure{FindShortestDirectedCycle}{$n, adj$}
+    \State $min\_cycle \gets \infty$
+    \For{$u \gets 0$ to $n-1$}
+        \State $dist[0 \ldots n-1] \gets \infty$
+        \State $dist[u] \gets 0$
+        \State $pq \gets$ priority queue with $(0, u)$
+        
+        \While{$pq$ is not empty}
+            \State $(d, v) \gets \text{ExtractMin}(pq)$
+            \If{$d > dist[v]$}
+                \State \textbf{continue}
+            \EndIf
+            \For{each $(to, w)$ in $adj[v]$}
+                \If{$dist[to] > d + w$}
+                    \State $dist[to] \gets d + w$
+                    \State Insert $(dist[to], to)$ into $pq$
+                \EndIf
+            \EndFor
+        \EndWhile
+        
+        \For{$v \gets 0$ to $n-1$}
+            \For{each $(to, w)$ in $adj[v]$}
+                \If{$to = u$ and $dist[v] \neq \infty$}
+                    \State $min\_cycle \gets \min(min\_cycle, dist[v] + w)$
+                \EndIf
+            \EndFor
+        \EndFor
+    \EndFor
+    \If{$min\_cycle = \infty$}
+        \State \Return $-1$
+    \Else
+        \State \Return $min\_cycle$
+    \EndIf
+\EndProcedure
+\end{algorithmic}
 \end{algorithm}
 
 \section*{\textgreek{Ανάλυση Πολυπλοκότητας}}
@@ -91,59 +92,42 @@
 
 \section*{Exercise 3}
 
-
 \begin{algorithm}
-\caption{Update MST }
+\caption{Find Path Between Two Vertices in MST (BFS)}
 \begin{algorithmic}[1]
-\State \textbf{Input:} 
-\State \quad \( V \) \text{ (Number of vertices)}
-\State \quad \( \text{graph\_edges} \) \text{ (List of graph edges with weights)}
-\State \quad \( \text{mst\_edges} \) \text{ (List of edges in the current MST)}
-\State \quad \( u, v \) \text{ (Vertices of the edge whose weight is being updated)}
-\State \quad \( \text{new\_weight} \) \text{ (New weight of the edge \( (u, v) \))}
-\State \textbf{Output:} Updated MST edges list
-
-\State \( \text{old\_weight} \gets \text{None} \)
-\For{each edge \( e \in \text{graph\_edges} \)}
-    \If{(e.u == u and e.v == v) or (e.u == v and e.v == u)}
-        \State \( \text{old\_weight} \gets e.\text{weight} \)
-        \State \( e.\text{weight} \gets \text{new\_weight} \)
-        \State \textbf{break}
-    \EndIf
-\EndFor
-
-\If{\( \text{old\_weight} \) is \( \text{None} \)}
-    \State \text{raise an error: Edge \( (u, v) \) not found in the graph}
-\EndIf
-
-\State \( \text{edge\_in\_mst} \gets \text{None} \)
-\For{each edge \( e \in \text{mst\_edges} \)}
-    \If{(e.u == u and e.v == v) or (e.u == v and e.v == u)}
-        \State \( \text{edge\_in\_mst} \gets e \)
-        \State \( e.\text{weight} \gets \text{new\_weight} \)
-        \State \textbf{break}
-    \EndIf
-\EndFor
-
-\If{edge\_in\_mst is not None and new\_weight > old\_weight}
-    \State \textbf{return} \texttt{handle\_weight\_increase}(V, graph\_edges, mst\_edges, edge\_in\_mst)
-\EndIf
-
-\If{edge\_in\_mst is None and new\_weight < old\_weight}
-    \State \textbf{return} \texttt{handle\_weight\_decrease}(V, graph\_edges, mst\_edges, u, v, new\_weight)
-\EndIf
-
-\State \textbf{return} mst\_edges
+\Function{find\_path}{start, end}
+    \State \textgreek{Αρχικοποίηση ουράς} \( q \gets \{start\} \)
+    \State \( \text{visited[start]} \gets \text{True} \)
+    \While{\( q \) is not empty}
+        \State \( \text{node} \gets q.pop() \)
+        \If{\( \text{node} == \text{end} \)}
+           \Comment{ \textgreek{Ανακατασκευή του μονοπατιού χρησιμοποιώντας τον πίνακα}} \textnormal{parent}
+            \State \( \text{curr} \gets \text{end} \)
+            \While{\( \text{curr} \ne \text{start} \)}
+                \State \( \text{prev} \gets \text{parent[curr]} \)
+                \State \( \text{curr} \gets \text{prev} \)
+            \EndWhile
+            \State \Return \text{True}
+        \EndIf
+        \ForAll{neighbor \( \in \text{adj\_list[node]} \)}
+            \If{not \( \text{visited[neighbor]} \)}
+                \State \( \text{visited[neighbor]} \gets \text{True} \)
+                \State \( \text{parent[neighbor]} \gets \text{node} \)
+                \State \( q.push(neighbor) \)
+            \EndIf
+        \EndFor
+    \EndWhile
+    \State \Return False
+\EndFunction
 \end{algorithmic}
 \end{algorithm}
 
 \begin{algorithm}
 \caption{Handle Weight Increase}
 \begin{algorithmic}[1]
-\State \textbf{Input:} \( V, \text{graph\_edges}, \text{mst\_edges}, \text{edge\_to\_remove} \)
-\State \textbf{Output:} Updated MST edges list
-
-\State \text{adj\_list} \(\gets\) Empty adjacency list for \( V \) vertices
+\State \textgreek{Είσοδος: } \( V, \text{graph\_edges}, \text{mst\_edges}, \text{edge\_to\_remove} \)
+\State \textgreek{Έξοδος: } \textgreek{Λίστα με ακμές ενημερωμένου ΕΕΔ}
+\State \text{adj\_list} \(\gets\) \textgreek{Άδεια λίστα γειτνίασης μεγέθους \( V \)} 
 \For{each edge \( e \in \text{mst\_edges} \)}
     \If{not \((e.u == \text{edge\_to\_remove}.u \text{ and } e.v == \text{edge\_to\_remove}.v)\) or \((e.u == \text{edge\_to\_remove}.v \text{ and } e.v == \text{edge\_to\_remove}.u)\))}
         \State \text{adj\_list[e.u].append(e.v)}
@@ -157,7 +141,7 @@
 
 \For{i = 0 to V-1}
     \If{visited[i] is False}
-        \State \text{bfs(i, comp\_id)}  \Comment{Breadth-first search to find components}
+        \State \text{bfs(i, comp\_id)}  \Comment{\textgreek{\(bfs\) για να βρούμε τις συνιστώσες}}
         \State comp\_id \(\gets\) comp\_id + 1
     \EndIf
 \EndFor
@@ -185,66 +169,105 @@
 \end{algorithm}
 
 \begin{algorithm}
-\caption{Handle Weight Decrease}
+\caption{DFS}
 \begin{algorithmic}[1]
-\State \textbf{Input:} \( V, \text{graph\_edges}, \text{mst\_edges}, u, v, \text{new\_weight} \)
-\State \textbf{Output:} Updated MST edges list
-
-\State \text{adj\_list} \(\gets\) Empty adjacency list for \( V \)
-\State \text{edge\_indices} \(\gets\) Dictionary of edge indices in \text{mst\_edges}
-\For{each edge \( e \in \text{mst\_edges} \)}
-    \State \text{adj\_list[e.u].append(e.v)}
-    \State \text{adj\_list[e.v].append(e.u)}
-    \State \text{edge\_indices[(e.u, e.v)]} = index of \( e \)
-    \State \text{edge\_indices[(e.v, e.u)]} = index of \( e \)
-\EndFor
-
-\State \text{path} \(\gets\) Empty list
-\State \text{visited} \(\gets\) Array of False values for \( V \)
-\State \text{parent} \(\gets\) Array of -1 values for \( V \)
-
-\State \text{find\_path}(u, v) \Comment{Find the path between \( u \) and \( v \) in the MST}
-\If{path exists}
-    \State \text{max\_weight\_edge\_idx} \(\gets\) Index of the heaviest edge in the path
-    \If{max\_weight $>$ new\_weight}
-        \State \text{result} \(\gets\) List of edges excluding the heaviest edge
-        \State \text{result.append(Edge(u, v, new\_weight))}
-        \State \textbf{return} result
+\Procedure{DFS}{$node$, $target$, $adjList$, $visited$, $parent$, $edgeToParent$}
+    \If{$node = target$}
+        \State \Return \textbf{true}
     \EndIf
-\EndIf
-
-\State \textbf{return} mst\_edges
+    \State $visited[node] \gets true$
+    \ForAll{$(neighbor, edge)$ in $adjList[node]$}
+        \If{\textbf{not} $visited[neighbor]$}
+            \State $parent[neighbor] \gets node$
+            \State $edgeToParent[neighbor] \gets edge$
+            \If{\Call{DFS}{$neighbor$, $target$, $adjList$, $visited$, $parent$, $edgeToParent$}}
+                \State \Return \textbf{true}
+            \EndIf
+        \EndIf
+    \EndFor
+    \State \Return \textbf{false}
+\EndProcedure
 \end{algorithmic}
 \end{algorithm}
 
+\vspace{1em}
+
 \begin{algorithm}
-\caption{Find Path Between Two Vertices in MST (BFS)}
+\caption{Handle Reduced Weight($V$, $graphEdges$, $mstEdges$, $u$, $v$, $newWeight$)}
 \begin{algorithmic}[1]
-\Function{find\_path}{start, end}
-    \State \text{Initialize a queue} \( q \gets \{start\} \)
-    \State \( \text{visited[start]} \gets \text{True} \)
-    \While{\( q \) is not empty}
-        \State \( \text{node} \gets q.pop() \)
-        \If{\( \text{node} == \text{end} \)}
-            \State \text{Reconstruct the path using parent array}
-            \State \( \text{curr} \gets \text{end} \)
-            \While{\( \text{curr} \ne \text{start} \)}
-                \State \( \text{prev} \gets \text{parent[curr]} \)
-                \State \text{Add edge index between } \( \text{curr, prev} \) \text{ to path}
-                \State \( \text{curr} \gets \text{prev} \)
-            \EndWhile
-            \State \Return \text{True}
-        \EndIf
-        \ForAll{neighbor \( \in \text{adj\_list[node]} \)}
-            \If{not \( \text{visited[neighbor]} \)}
-                \State \( \text{visited[neighbor]} \gets \text{True} \)
-                \State \( \text{parent[neighbor]} \gets \text{node} \)
-                \State \( q.push(neighbor) \)
-            \EndIf
-        \EndFor
-    \EndWhile
-    \State \Return False
-\EndFunction
+\State \textgreek{Αρχικοποίησε λίστα γειτνίασης} $adjList[0 \dots V-1] \gets \textgreek{Άδειες λίστες}$
+\ForAll{$e \in mstEdges$}
+    \State Add $(e.v, e)$ to $adjList[e.u]$ and $(e.u, e)$ to $adjList[e.v]$
+\EndFor
+
+\State \textgreek{Αρχικοποίησε πίνακες}: $visited[0 \dots V-1] \gets false$, $parent[0 \dots V-1] \gets -1$, $edgeToParent[0 \dots V-1] \gets \text{None}$
+
+\If{\textbf{not} \Call{DFS}{$u$, $v$, $adjList$, $visited$, $parent$, $edgeToParent$}}
+    \State \Return $mstEdges$
+\EndIf
+
+\State $curr \gets v$, $maxEdge \gets$ None
+\While{$curr \ne u$}
+    \State $edge \gets edgeToParent[curr]$
+    \If{$maxEdge = \text{None}$ \textbf{or} $edge.weight > maxEdge.weight$}
+        \State $maxEdge \gets edge$
+    \EndIf
+    \State $curr \gets parent[curr]$
+\EndWhile
+
+\If{$maxEdge \ne \text{None}$ \textbf{and} $maxEdge.weight > newWeight$}
+    \State $newMST \gets$ all edges in $mstEdges$ except $maxEdge$
+    \State Add edge $(u, v, newWeight)$ to $newMST$
+    \State \Return $newMST$
+\EndIf
+
+\State \Return $mstEdges$
+\end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}
+\caption{Update MST }
+\begin{algorithmic}[1]
+\State \textgreek{Είσοδος: }
+\State \quad \( V \) (\textgreek{Αριθμός Κορυφών})
+\State \quad \( \text{graph\_edges} \) \textgreek{Λίστα ακμών με τα βάρη τους}
+\State \quad \( \text{mst\_edges} \) \textgreek{Λίστα ακμών στο παρών ΕΕΔ}
+\State \quad \( u, v \) \textgreek{Κορυφές της ακμής που ενημερώνεται}
+\State \quad \( \text{new\_weight} \) \textgreek{ (Νέο βάρος της ακμής \( (u, v) \))}
+\State \textgreek{Έξοδος: } \textgreek{Λίστα με τις ακμές του ενημερωμένου ΕΕΔ}
+
+\State \( \text{old\_weight} \gets \text{None} \)
+\For{each edge \( e \in \text{graph\_edges} \)}
+    \If{(e.u == u and e.v == v) or (e.u == v and e.v == u)}
+        \State \( \text{old\_weight} \gets e.\text{weight} \)
+        \State \( e.\text{weight} \gets \text{new\_weight} \)
+        \State \textbf{break}
+    \EndIf
+\EndFor
+
+\If{\( \text{old\_weight} \) is \( \text{None} \)}
+    \State \text{return None}  \Comment{\textgreek{Η ενημερωμένη ακμή δεν βρέθηκε στον γράφο}}
+\EndIf
+
+\State \( \text{edge\_in\_mst} \gets \text{None} \)
+\For{each edge \( e \in \text{mst\_edges} \)}
+    \If{(e.u == u and e.v == v) or (e.u == v and e.v == u)}
+        \State \( \text{edge\_in\_mst} \gets e \)
+        \State \( e.\text{weight} \gets \text{new\_weight} \)
+        \State \textbf{break}
+    \EndIf
+\EndFor
+
+\If{edge\_in\_mst is not None and new\_weight \(>\) old\_weight}
+    \State \textbf{return} \texttt{handle\_weight\_increase}(V, graph\_edges, mst\_edges, edge\_in\_mst)
+\EndIf
+
+\If{edge\_in\_mst is None and new\_weight \(<\) old\_weight}
+    \State \textbf{return} \texttt{handle\_weight\_decrease}(V, graph\_edges, mst\_edges, u, v, new\_weight)
+\EndIf
+
+\State \textbf{return} mst\_edges
 \end{algorithmic}
 \end{algorithm}
 
