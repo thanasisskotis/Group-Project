@@ -7,88 +7,150 @@
 \usepackage{fullpage}
 \usepackage{textgreek}
 
+
 \begin{document}
 
 \section*{Exercise 1}
+\section*{\textgreek{Περιγραφή Αλγορίθμου: }}
+\begin{enumerate}
+    \item \textgreek{Αρχικοποίηση του πίνακα αποστάσεων:}
+    \[
+    \text{dist}[i][j] =
+    \begin{cases}
+    w(i, j), & \textgreek{αν υπάρχει ακμή } i \rightarrow j \\
+    \infty, & \textgreek{διαφορετικά}
+    \end{cases}
+    \]
+    \item \textgreek{Για κάθε κόμβο $k \in V$, και για κάθε ζεύγος κόμβων $i, j \in V$, βρίσκουμε τη συντομότερη διαδρομή μεταξύ $i$ και $j$}:
+    \[
+    \text{dist}[i][j] = \min(\text{dist}[i][j], \text{dist}[i][k] + \text{dist}[k][j])
+    \]
+    \item \textgreek{Ο συντομότερος κύκλος δίνεται από:}
+    \[
+    \min_{v \in V} \text{dist}[v][v]
+    \]
+    Αν $\text{dist}[v][v] = \infty$ \textgreek{για όλα τα $v$, τότε το γράφημα δεν περιέχει κύκλο.}
+\end{enumerate}
+
+\section*{\textgreek{Ψευδοκώδικας:}}
+
 \begin{algorithm}
-\caption{FindShortestDirectedCycle}
+\caption{\textgreek{Συντομότερος Κατευθυνόμενος Κύκλος}}
 \begin{algorithmic}[1]
-\Procedure{FindShortestDirectedCycle}{$n, adj$}
-    \State $min\_cycle \gets \infty$
-    \For{$u \gets 0$ to $n-1$}
-        \State $dist[0 \ldots n-1] \gets \infty$
-        \State $dist[u] \gets 0$
-        \State $pq \gets$ priority queue with $(0, u)$
-        
-        \While{$pq$ is not empty}
-            \State $(d, v) \gets \text{ExtractMin}(pq)$
-            \If{$d > dist[v]$}
-                \State \textbf{continue}
-            \EndIf
-            \For{each $(to, w)$ in $adj[v]$}
-                \If{$dist[to] > d + w$}
-                    \State $dist[to] \gets d + w$
-                    \State Insert $(dist[to], to)$ into $pq$
-                \EndIf
-            \EndFor
-        \EndWhile
-        
-        \For{$v \gets 0$ to $n-1$}
-            \For{each $(to, w)$ in $adj[v]$}
-                \If{$to = u$ and $dist[v] \neq \infty$}
-                    \State $min\_cycle \gets \min(min\_cycle, dist[v] + w)$
-                \EndIf
-            \EndFor
+\Statex \textgreek{Είσοδος: Γράφος $G = (V, A)$ με θετικά βάρη $w(u, v)$}
+\Statex \textgreek{Έξοδος: Μήκος του συντομότερου κατευθυνόμενου κύκλου ή \texttt{None} αν δεν υπάρχει κύκλος}
+
+\State Αρχικοποίησε τον πίνακα \texttt{dist[$n$][$n$]} ως εξής:
+\ForAll{$i, j \in V$}
+    \If{$i = j$}
+        \State \texttt{dist[$i$][$j$]} $\gets 0$
+    \ElsIf{$(i, j) \in A$}
+        \State \texttt{dist[$i$][$j$]} $\gets w(i, j)$
+    \Else
+        \State \texttt{dist[$i$][$j$]} $\gets \infty$
+    \EndIf
+\EndFor
+
+\For{$k = 1$ to $n$}
+    \For{$i = 1$ to $n$}
+        \For{$j = 1$ to $n$}
+            \State \texttt{dist[$i$][$j$]} $\gets \min(\texttt{dist[$i$][$j$]}, \texttt{dist[$i$][$k$]} + \texttt{dist[$k$][$j$]})$
         \EndFor
     \EndFor
-    \If{$min\_cycle = \infty$}
-        \State \Return $-1$
-    \Else
-        \State \Return $min\_cycle$
-    \EndIf
-\EndProcedure
+\EndFor
+
+\State \texttt{minCycle} $\gets \infty$
+\For{$v = 1$ to $n$}
+    \State \texttt{minCycle} $\gets \min(\texttt{minCycle}, \texttt{dist[$v$][$v$]})$
+\EndFor
+
+\If{\texttt{minCycle = $\infty$}}
+    \State \Return \texttt{None}
+\Else
+    \State \Return \texttt{minCycle}
+\EndIf
+
 \end{algorithmic}
 \end{algorithm}
 
-\section*{\textgreek{Ανάλυση Πολυπλοκότητας}}
+\section*{\textgreek{Ανάλυση Πολυπλοκότητας: }}
 
-\textgreek{Η συνάρτηση} \texttt{find\_shortest\_directed\_cycle} \textgreek{διατρέχει σε κάθε κορυφή $u$ στον γράφο και τρέχει τον αλγόριθμο του}
-\textnormal{Dijkstra} \textgreek{από το $u$. Μετά από αυτό διαπερνά όλες τις ακμές για να ελέγξει αν υπάρχει κύκλος που τελειώνει στο $u$.}
+\textgreek{Ο αλγόριθμος αποτελείται από τρεις εμφωλευμένους βρόγχους επανάληψης. Έστω \( n = |V| \)}
 
-\textgreek{Έστω: }
+\subsection*{Main Loop}
+
+\textgreek{Υπολογίζουμε: }
+\[
+\text{dist}[i][j] = \min(\text{dist}[i][j], \text{dist}[i][k] + \text{dist}[k][j])
+\]
+\textgreek{για κάθε } \( i, j, k \in \{1, 2, \dots, n\} \).
+
+\subsection*{\textgreek{Συνολικός αριθμός πράξεων τριπλού βρόγχου:} }
+
+\textgreek{Αθροίζουμε ως προς όλους τους συνδυασμούς \( i, j, k \):}
+
+\sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) = O(n) \cdot O(n) \cdot O(n) = O(n^3)
+
+\subsection*{\textgreek{Μετά από την επεξεργασία μέσω του τριπλού βρόγχου επανάληψης: }}
+
+\textgreek{\textgreek{Έλεγχος διαγώνιων στοιχείων για την εύρεση συντομότερου κύκλου: }}
+\[
+\min_{v \in V} \text{dist}[v][v]
+\]
+\textgreek{Αυτό απαιτεί: }  \sum_{v=1}^{n} O(1) = O(n)  \textgreek{ πράξεις.}
+
+\subsection*{\textgreek{Συνολική πολυπλοκότητα: }}
+
+T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) = O(n^3) 
++ O(n) = \mathcal{O}(n^3)
+
+
+
+\section*{\textgreek{Απόδειξη Ορθότητας}}
+
+\textgreek{Έστω $V = \{1, 2, \dots, n\}$ το σύνολο των κόμβων. Ορίζουμε τη συντομότερη διαδρομή από $i$ σε $j$ χρησιμοποιώντας μόνο ενδιάμεσους κόμβους από το υποσύνολο $\{1, 2, \dots, k\}$. Την ονομάζουμε $\delta_k(i,j)$. Η επαγωγική υπόθεση ορίζει ότι για κάθε $k$, ισχύει η εξής αναδρομική σχέση:}
+
+\[
+\delta_k(i,j) = \min \left\{ \delta_{k-1}(i,j),\ \delta_{k-1}(i,k) + \delta_{k-1}(k,j) \right\}
+\]
+\textgreek{
 \begin{itemize}
-    \item $n$ \textgreek{να είναι ο αριθμός των κορυφών του γράφου},
-    \item $m$ \textgreek{να είναι ο αριθμός των κατευθυνόμενων ακμών του γράφου}.
+    \item Για $k = 0$, η $\delta_0(i,j)$ είναι:
+    \[
+    \delta_0(i,j) =
+    \begin{cases}
+    w(i,j), & \text{αν υπάρχει ακμή } (i,j) \in A \\
+    \infty, & \text{διαφορετικά}
+    \end{cases}
+    \]
+    \item Έστω ότι η πρόταση ισχύει για $k-1$, και εξετάζουμε την περίπτωση $k$:
+    \begin{itemize}
+        \item Αν η συντομότερη διαδρομή από $i$ σε $j$ **δεν περιλαμβάνει τον $k$** ως ενδιάμεσο κόμβο, τότε όλοι οι ενδιάμεσοι κόμβοι ανήκουν στο $\{1, \dots, k-1\}$ και:
+        \[
+        \delta_k(i,j) = \delta_{k-1}(i,j)
+        \]
+        \item Αν η διαδρομή περιλαμβάνει τον $k$ ως ενδιάμεσο, τότε διασπάται σε δύο διαδρομές:
+        \[
+        \delta_k(i,j) = \delta_{k-1}(i,k) + \delta_{k-1}(k,j)
+        \]
+        που σύμφωνα με την επαγωγική υπόθεση είναι σωστές.
+    \end{itemize}
 \end{itemize}
+}
+\textgreek{
+Επομένως, η αναδρομική σχέση υπολογίζει σωστά το $\delta_k(i,j)$ για κάθε $k$, και τελικά το $\delta_n(i,j)$ είναι η συντομότερη διαδρομή από $i$ σε $j$.}
 
-\subsection*{\textgreek{Ανάλυση βήμα προς βήμα}}
+\section*{\textgreek{Εύρεση Κύκλου}}
+\textgreek{
+Η συντομότερη κατευθυνόμενη κυκλική διαδρομή είναι μια διαδρομή που ξεκινά και καταλήγει στον ίδιο κόμβο. Άρα για κάθε $v \in V$ η ποσότητα} $\text{dist}[v][v]$ \textgreek{περιέχει το μήκος της συντομότερης κυκλικής διαδρομής που περνά από το $v$.}
 
-\begin{itemize}
-    \item \textgreek{Για κάθε κορυφή $u$, τρέχουμε τον αλγόριθμο} \textnormal{Dijkstra} \textgreek{που παίρνει χρόνο $O(m \log n)$}
-    \item \textgreek{Μετά από αυτό, ελέγχουμε αν κάποια από όλες τις} \textnormal{m}
-    \textgreek{ακμές σχηματίζουν κύκλο με την κορυφή $u$, που παίρνει χρόνο $O(m)$}
-\end{itemize}
-
-\textgreek{Οπότε για κάθε μία από τις $n$ κορυφές, το κόστος είναι :}
-
+\textgreek{Το ελάχιστο αυτών:}
 \[
-\sum_{u=1}^{n} \left( O(m \log n) + O(m) \right)
-= \sum_{u=1}^{n} O(m \log n + m)
-= \sum_{u=1}^{n} O(m (\log n + 1))
+\min_{v \in V} \text{dist}[v][v]
 \]
+\textgreek{είναι το μήκος του συντομότερου κατευθυνόμενου κύκλου.}
 
-\textgreek{Εφόσον $\log n + 1 = O(\log n)$ , απλοποιούμε σε:}
 
-\[
-= \sum_{u=1}^{n} O(m \log n) = O(nm \log n)
-\]
-
-\subsection*{\textgreek{Συμπέρασμα: }}
-
-\textgreek{Η συνολική πολυπλκότητα είναι: }
-\[
-\boxed{O(nm \log n)}
-\]
 
 \section*{Exercise 3}
 
@@ -272,3 +334,4 @@
 \end{algorithm}
 
 \end{document}
+
