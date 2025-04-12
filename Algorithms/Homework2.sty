@@ -13,63 +13,169 @@
 \section*{Exercise 2}
 
 \begin{algorithm}
-    \caption{\begin{otherlanguage}{greek}Βρες την Ειδική Κορυφή\end{otherlanguage}}
-    \begin{algorithmic}[1]
-        \State \textbf{\begin{otherlanguage}{greek}Είσοδος\end{otherlanguage}}: \begin{otherlanguage}{greek} Κατευθυνόμενο γράφημα $G = (V, A)$ με $|V| = n$.\end{otherlanguage}
-        \State \textbf{\begin{otherlanguage}{greek}Έξοδος \end{otherlanguage}}: \texttt{TRUE} \begin{otherlanguage}{greek} αν υπάρχει κορυφή $v$ με \end{otherlanguage} out-degree = 0 \begin{otherlanguage}{greek} και \end{otherlanguage} in-degree = $n-1$, \begin{otherlanguage}{greek} αλλιώς \end{otherlanguage} \texttt{FALSE}.
-        
-        \State \textbf{\begin{otherlanguage}{greek}Αρχικοποίηση \end{otherlanguage}}: \begin{otherlanguage}{greek} Δημιούργησε έναν πίνακα \end{otherlanguage} \texttt{in\_degree}[1...n] \begin{otherlanguage}{greek} με αρχική τιμή 0 και έναν \end{otherlanguage} rejected[1...n] \begin{otherlanguage}{greek} με αρχική τιμή 0.
-        \State Θέσε \end{otherlanguage} \texttt{node} := 1 (\begin{otherlanguage}{greek} υποψήφια κορυφή). \end{otherlanguage}
-        
-        \For{\begin{otherlanguage}{greek} κάθε ακμή $(u, v)$ στο $A$ \textbf{και} \end{otherlanguage} rejected[v] = 0 }
-            \Comment{\begin{otherlanguage}{greek} Κοιτάμε μόνο τα \end{otherlanguage} nodes \begin{otherlanguage}{greek} που έχουμε δεί ότι έχουν \end{otherlanguage} out-degree $<$ 0}
-            \State \texttt{in\_degree}[v] $\gets$ \texttt{in\_degree}[v] + 1
-            \State \texttt{rejected}[u] $\gets$ 1
-            \If{\texttt{node} $= u$}
-                \State \texttt{node} $\gets v$ \Comment{\begin{otherlanguage}{greek} Αποκλείουμε το \end{otherlanguage} candidate node \begin{otherlanguage}{greek} αν έχει \end{otherlanguage} out-degree $>$ 0}
-            \EndIf
-        \EndFor
-        
-        \State \textbf{\begin{otherlanguage}{greek} Έλεγχος εγκυρότητας υποψήφιας κορυφής \end{otherlanguage}}:
-        \If{\texttt{in\_degree}[node] = $n-1$}
-            \State \Return \texttt{TRUE}
-        \Else
-            \State \Return \texttt{FALSE}
-        \EndIf
-    \end{algorithmic}
+\caption{\begin{otherlanguage}{greek}Βρες την Ειδική Κορυφή σε $O(n)$\end{otherlanguage}}
+\begin{algorithmic}[1]
+\State \textbf{\begin{otherlanguage}{greek}Είσοδος:\end{otherlanguage}} \begin{otherlanguage}{greek}Γράφημα $G$ (ως \end{otherlanguage} adjacency matrix \begin{otherlanguage}{greek}) με $n$ κορυφές και συνάρτηση \texttt{γνωρίζει$(u, v)$} που επιστρέφει \texttt{True} αν υπάρχει ακμή από $u$ προς $v$.\end{otherlanguage}
+\State \textbf{\begin{otherlanguage}{greek}Έξοδος:\end{otherlanguage}} \begin{otherlanguage}{greek}\texttt{True} αν υπάρχει ειδική κορυφή, αλλιώς \texttt{False}.\end{otherlanguage}
+\State
+
+\State \textbf{\begin{otherlanguage}{greek}Βήμα 1: Επιλογή υποψηφίου\end{otherlanguage}}
+\State \begin{otherlanguage}{greek}υποψήφιος $\gets 1$\end{otherlanguage}
+\For{$i = 2$ \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $n$}
+    \If{\begin{otherlanguage}{greek}\texttt{γνωρίζει(υποψήφιος, $i$)}\end{otherlanguage}}
+        \State \begin{otherlanguage}{greek}υποψήφιος \gets $i$\end{otherlanguage}
+    \EndIf
+\EndFor
+
+\State
+
+\State \textbf{\begin{otherlanguage}{greek}Βήμα 2: Έλεγχος εγκυρότητας\end{otherlanguage}}
+\For{$i = 1$ \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $n$}
+    \If{\begin{otherlanguage}{greek}$i$ = υποψήφιος\end{otherlanguage}}
+        \State \begin{otherlanguage}{greek}\textbf{συνέχισε}\end{otherlanguage}
+    \EndIf
+    \If{\begin{otherlanguage}{greek}\textbf{όχι} \texttt{γνωρίζει($i$, υποψήφιος)} \textbf{ή} \texttt{γνωρίζει(υποψήφιος, $i$)}\end{otherlanguage}}
+        \State \Return \texttt{False}
+    \EndIf
+\EndFor
+
+\State \Return \texttt{True}
+\end{algorithmic}
 \end{algorithm}
+
+
+\begin{otherlanguage}{greek}
+Ο αλγόριθμος εντοπίζει αν υπάρχει μία ειδική κορυφή $c$ στο γράφημα με τις εξής ιδιότητες:
+\begin{itemize}
+    \item Για κάθε $i \neq c$, ισχύει \texttt{γνωρίζει$(i, c)$} = \texttt{$True$}
+    \item Για κάθε $i \neq c$, ισχύει \texttt{γνωρίζει$(c, i)$} = \texttt{$False$}
+\end{itemize}
+
+Ο αλγόριθμος αποτελείται από δύο φάσεις:
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Βήμα 1: Επιλογή Υποψήφιου\end{otherlanguage}}
+
+\begin{otherlanguage}{greek}
+Αρχικά θεωρούμε τον κόμβο $1$ ως υποψήφιο. Για κάθε επόμενο κόμβο $i$ από $2$ έως $n$, ελέγχουμε:
+
+\begin{itemize}
+    \item Αν ο τρέχων υποψήφιος \texttt{γνωρίζει($i$)}, τότε ο υποψήφιος απορρίπτεται (δεν είναι η ειδική κορυφή), και το $i$ γίνεται ο νέος υποψήφιος.
+    \item Αλλιώς, το $i$ δεν μπορεί να είναι η ειδική κορυφή γιατί υπάρχει κάποιος που δεν τον γνωρίζει, και κρατάμε τον ίδιο υποψήφιο.
+\end{itemize}
+
+Στο τέλος του πρώτου βήματος, μένει ένας μοναδικός υποψήφιος που ενδέχεται να είναι η ειδική κορυφή.
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Βήμα 2: Έλεγχος Εγκυρότητας\end{otherlanguage}}
+
+\begin{otherlanguage}{greek}
+Για κάθε κόμβο $i \neq$ υποψήφιος, ελέγχουμε:
+\begin{itemize}
+    \item Αν \texttt{γνωρίζει($i$, υποψήφιος)} είναι \texttt{$False$}, τότε απορρίπτεται.
+    \item Αν \texttt{γνωρίζει(υποψήφιος, $i$)} είναι \texttt{$True$}, τότε επίσης απορρίπτεται.
+\end{itemize}
+
+\paragraph{Συμπέρασμα:} Αν περάσει τον έλεγχο, επιστρέφεται \texttt{$True$}, αλλιώς \texttt{$False$}.
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Χρονική Πολυπλοκότητα:\end{otherlanguage}} $O(n)$ \begin{otherlanguage}{greek} για τον 1ο βρόχο επανάληψης και $Ο(n)$ και στο 2ο βρόχο επανάληψης άρα στο σύνολο έχουμε $O(n) + O(n) = O(n)$ , άρα αλγοριθμικά βέλτιστος.\end{otherlanguage}
+
+
+
 
 
 
 \section*{Exercise 4}
 
 \begin{algorithm}
-\caption{\begin{otherlanguage}{greek}Χρωματισμός Διαστημάτων με Ελάχιστα Χρώματα\end{otherlanguage}}
-\begin{algorithmic}[1] 
-\State \begin{otherlanguage}{greek} Είσοδος $Set = \{(l_i, r_i)\}_{i=1}^n$ από $n$ ανοιχτά διαστήματα και ο αριθμός των διαστημάτων $n$.\end{otherlanguage}
-\State \begin{otherlanguage}{greek} Επιστρέφει ένα πίνακα $ColourArray[1 \ldots n]$ όπου $n$ τα διαστήματα και τιμές του το κάθε χρώμα(τα χρώματα θα συμβολίζονται με αριθμούς).\end{otherlanguage}
-\State  \begin{otherlanguage}{greek} Αρχικοποίησε τον πίνακα $IntervalArray$ και ταξινόμησε το σύνολο ως προς το αριστερό άκρο του κάθε διαστήματος στον πίνακα κρατώντας ως τιμές του τα 2 άκρα.\end{otherlanguage}
-\State \begin{otherlanguage}{greek} Αρχικοποίησε $ColourArray$ για $n$ θέσεις με τιμές 0.\end{otherlanguage}
-\State \begin{otherlanguage}{greek} Αρχικοποίησε $CurrentColour \gets 1$.\end{otherlanguage}
-\For{$i \gets 1$ \textbf{\begin{otherlanguage}{greek} μέχρι \end{otherlanguage}} $n$}
-    \State $CurrentColour \gets 1$
-    \For{$j \gets 1  \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $i}
-        \If{$( IntervalArray[j].secondElement > IntervalArray[i].firstElement \textbf{ and } CurrentColour = ColourArray[j] )$}
-            \State $ColourArray[i] \gets CurrentColour$
-            \State \begin{otherlanguage}{greek} Βγες από την επανάληψη. \end{otherlanguage}
-        \Else
-            \State CurrentColour = CurrentColour + 1
-        \EndIf
-    \EndFor
-    \If{$( ColourArray[i] = 0 )$}
-        \State $ColourArray \gets CurrentColour$
+\caption{\begin{otherlanguage}{greek}Χρωματισμός Διαστημάτων με Ελάχιστα Χρώματα \end{otherlanguage}}
+\begin{algorithmic}[1]
+\State \begin{otherlanguage}{greek}Είσοδος: Πίνακας $Set = \{(l_i, r_i)\}_{i=1}^n$ από $n$ ανοιχτά διαστήματα.\end{otherlanguage}
+\State \begin{otherlanguage}{greek}Ταξινόμησε τα διαστήματα κατά αύξον $l_i$.\end{otherlanguage}
+\State \begin{otherlanguage}{greek}Αρχικοποίησε πίνακα $ColourArray[1 \ldots n] \gets 0$\end{otherlanguage}
+\State \begin{otherlanguage}{greek}Αρχικοποίησε κενό $set$ για διαθέσιμα χρώαματα $AvailableColours$\end{otherlanguage}
+\State \begin{otherlanguage}{greek}Αρχικοποίησε $CurrentColour \gets 1$\end{otherlanguage}
+\State \begin{otherlanguage}{greek}Αρχικοποίησε κενή \end{otherlanguage} priority queue $PQ$ \begin{otherlanguage}{greek} με στοιχεία της μορφής $(r_i, \text{χρώμα})$ ταξινομημένα κατά $r_i$\end{otherlanguage}
+\For{$i \gets 1$ \textbf{to} $n$}
+    \While{\begin{otherlanguage}{greek}$PQ$ δεν είναι κενή \textbf{και} $PQ.top().first \leq l_i$\end{otherlanguage}}
+        \State \begin{otherlanguage}{greek}Αφαίρεσε ($r$, χρώμα) από $PQ$\end{otherlanguage}
+        \State \begin{otherlanguage}{greek}Πρόσθεσε \textbf{χρώμα} στο $AvailableColours$\end{otherlanguage}
+    \EndWhile
+    \If{\begin{otherlanguage}{greek}υπάρχει διαθέσιμο χρώμα\end{otherlanguage}}
+        \State \begin{otherlanguage}{greek}Ανάθεσε στον πίνακα $ColourArray[i]$ ένα διαθέσιμο χρώμα από το $AvailableColours$\end{otherlanguage}
+    \Else
+        \State \begin{otherlanguage}{greek}$ColourArray[i] \gets CurrentColour$\end{otherlanguage}
+        \State \begin{otherlanguage}{greek}$CurrentColour \gets CurrentColour + 1$\end{otherlanguage}
     \EndIf
+    \State \begin{otherlanguage}{greek}Προσθήκη $(r_i, ColourArray[i])$ στο $PQ$\end{otherlanguage}
 \EndFor
-\State \textbf{\begin{otherlanguage}{greek} Επιστροφή \end{otherlanguage}} \begin{otherlanguage}{greek} Ο πίνακας $ColourArray[1 \ldots n]$.\end{otherlanguage}
-
+\State \Return \begin{otherlanguage}{greek}$ColourArray[1 \ldots n]$\end{otherlanguage}
 \end{algorithmic}
 \end{algorithm}
 
+
+\subsection*{\begin{otherlanguage}{greek}Απόδειξη Ορθότητας και Πολυπλοκότητας Αλγορίθμου Χρωματισμού\end{otherlanguage}}
+
+\paragraph{\begin{otherlanguage}{greek}Ιδιότητες που πρέπει να αποδείξουμε:\end{otherlanguage}}
+
+\begin{otherlanguage}{greek}
+\begin{itemize}
+    \item[(1)] Ο αλγόριθμος δεν αναθέτει ποτέ το ίδιο χρώμα σε δύο επικαλυπτόμενα διαστήματα.
+    \item[(2)] Ο αριθμός χρωμάτων που χρησιμοποιούνται είναι ελάχιστος δυνατός.
+\end{itemize}
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Απόδειξη ιδιότητας (1):\end{otherlanguage}}\begin{otherlanguage}{greek} Κανένα δύο επικαλυπτόμενα διαστήματα δεν έχουν το ίδιο χρώμα.\end{otherlanguage}
+
+\begin{otherlanguage}{greek}
+Έστω ότι το διάστημα $I_i = (l_i, r_i)$ παίρνει ένα χρώμα $c$ από το σύνολο των διαθέσιμων χρωμάτων $AvailableColours$.
+
+Αυτό σημαίνει ότι το χρώμα $c$ είχε ανατεθεί σε κάποιο προηγούμενο διάστημα $I_j = (l_j, r_j)$, το οποίο όμως είχε ήδη αφαιρεθεί από την ουρά $PQ$ (άρα $r_j \leq l_i$), δηλαδή το $I_j$ έχει τελειώσει πριν ξεκινήσει το $I_i$.
+
+Επομένως, τα $I_j$ και $I_i$ δεν επικαλύπτονται, άρα είναι ασφαλές να χρησιμοποιήσουμε ξανά το ίδιο χρώμα $c$.
+
+Ομοίως, αν το $I_i$ λάβει νέο χρώμα $c$ (δεν υπάρχει διαθέσιμο), αυτό σημαίνει ότι επικαλύπτεται με όλα τα ενεργά διαστήματα που βρίσκονται στην $PQ$, τα οποία έχουν διαφορετικά χρώματα.
+
+Άρα, κανένα δύο επικαλυπτόμενα διαστήματα δεν έχουν το ίδιο χρώμα.
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Απόδειξη ιδιότητας (2):\end{otherlanguage} } \begin{otherlanguage}{greek} Ο αριθμός χρωμάτων είναι ελάχιστος.\end{otherlanguage}
+
+\begin{otherlanguage}{greek}
+Το πλήθος των χρωμάτων που χρησιμοποιούνται αντιστοιχεί στον μέγιστο αριθμό επικαλυπτόμενων διαστημάτων σε οποιοδήποτε χρονικό σημείο. Ο λόγος είναι ότι το χρώμα επαναχρησιμοποιείται αμέσως μόλις το αντίστοιχο διάστημα τελειώσει.
+
+Δηλαδή, ένα νέο χρώμα δημιουργείται μόνο όταν το τρέχον διάστημα επικαλύπτεται με όλα τα προηγούμενα "ενεργά" διαστήματα, και δεν υπάρχει κανένα χρώμα διαθέσιμο.
+
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Συμπέρασμα:\end{otherlanguage}}
+
+\begin{otherlanguage}{greek}
+Ο αλγόριθμος αναθέτει έγκυρα χρώματα χωρίς επικαλύψεις, και χρησιμοποιεί τον ελάχιστο δυνατό αριθμό χρωμάτων για τη χρωμάτιση των διαστημάτων.
+\end{otherlanguage}
+
+
+\paragraph{\begin{otherlanguage}{greek}Πολυπλοκότητα:\end{otherlanguage}}
+
+\begin{otherlanguage}{greek}
+Αναλύουμε τα βήματα του αλγορίθμου:
+
+\begin{itemize}
+    \item Ταξινόμηση των $n$ διαστημάτων κατά $l_i$: $O(n \log n)$
+    \item Για κάθε διάστημα( $O(n)$ ):
+    \begin{itemize}
+        \item Εισαγωγή ή αφαίρεση από το \begin{otherlanguage}{english}priority queue: \end{otherlanguage} $O(\log n)$
+        \item Αναζήτηση/εκχώρηση χρώματος: $O(1)$ με διαχείριση διαθέσιμων χρωμάτων ($set$).
+    \end{itemize}
+\end{itemize}
+
+Άρα $O(nlogn)$
+
+\textbf{Συνολικά:} $O(n \log n) + O(n \log n) = O(n \log n)$ λόγω της ταξινόμησης και των προσθηκών/αφαιρέσεων στη ουρά προτεραιότητας ανά διάστημα.
+
+\paragraph{Βέλτιστοτητα:} Ο αλγόριθμος είναι βέλτιστος για τα διαστηματά μας, καθώς ο ελάχιστος αριθμός χρωμάτων είναι ίσος με τη μέγιστη ταυτόχρονη επικάλυψη, κάτι που επιτυγχάνεται εδώ.
+\end{otherlanguage}
 
 
 
