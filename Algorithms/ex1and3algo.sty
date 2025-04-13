@@ -154,183 +154,180 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 
 \section*{Exercise 3}
 
-\begin{algorithm}
-\caption{Find Path Between Two Vertices in MST (BFS)}
+\begin{algorithm}[H]
+\caption{\textgreek{Ενημέρωση ΕΕΔ μετά από Αλλαγή Βάρους Ακμής}}
 \begin{algorithmic}[1]
-\Function{find\_path}{start, end}
-    \State \textgreek{Αρχικοποίηση ουράς} \( q \gets \{start\} \)
-    \State \( \text{visited[start]} \gets \text{True} \)
-    \While{\( q \) is not empty}
-        \State \( \text{node} \gets q.pop() \)
-        \If{\( \text{node} == \text{end} \)}
-           \Comment{ \textgreek{Ανακατασκευή του μονοπατιού χρησιμοποιώντας τον πίνακα}} \textnormal{parent}
-            \State \( \text{curr} \gets \text{end} \)
-            \While{\( \text{curr} \ne \text{start} \)}
-                \State \( \text{prev} \gets \text{parent[curr]} \)
-                \State \( \text{curr} \gets \text{prev} \)
-            \EndWhile
-            \State \Return \text{True}
-        \EndIf
-        \ForAll{neighbor \( \in \text{adj\_list[node]} \)}
-            \If{not \( \text{visited[neighbor]} \)}
-                \State \( \text{visited[neighbor]} \gets \text{True} \)
-                \State \( \text{parent[neighbor]} \gets \text{node} \)
-                \State \( q.push(neighbor) \)
-            \EndIf
-        \EndFor
-    \EndWhile
-    \State \Return False
-\EndFunction
+\Statex \textgreek{Είσοδος: $G = (V, E)$, λίστα με όλες τις ακμές $graph\_edges$, αρχικό MST $mst\_edges$, ακμή $(u, v)$, νέο βάρος $new\_weight$}
+\Statex \textgreek{Έξοδος: Το ενημερωμένο ΕΕΔ μετά την αλλαγή βάρους}
+
+\State \textgreek{Αρχικοποίησε} \texttt{old\_weight} $\gets$ \texttt{None}
+
+\ForAll{\texttt{e} \textgreek{στο} \texttt{graph\_edges}}
+    \If{$(e.u = u \land e.v = v)$ \text{or} $(e.u = v \land e.v = u)$}
+        \State \texttt{old\_weight} $\gets$ \texttt{e.weight}
+        \State \texttt{e.weight} $\gets$ \texttt{new\_weight}
+        \State \textbf{break}
+    \EndIf
+\EndFor
+
+\If{\texttt{old\_weight = None}}
+    \State \textbf{raise} \texttt{Error("Edge not found")}
+\EndIf
+
+\State \textgreek{Έλεγχος αν η ακμή υπάρχει στο ΕΕΔ}
+\State \texttt{edge\_in\_mst} $\gets$ \texttt{None}
+
+\ForAll{$i$ \textgreek{και} \texttt{e} \textgreek{στο} \texttt{mst\_edges}}
+    \If{$(e.u = u \land e.v = v)$ \textgreek{ή} $(e.u = v \land e.v = u)$}
+        \State \texttt{edge\_in\_mst} $\gets$ \texttt{e}
+        \State \texttt{mst\_edges[$i$].weight} $\gets$ \texttt{new\_weight}
+        \State \textbf{break}
+    \EndIf
+\EndFor
+
+\If{\texttt{edge\_in\_mst} \textgreek{και} \texttt{new\_weight > old\_weight}}
+    \State \Return \texttt{HandleWeightIncrease($V$, $graph\_edges$, $mst\_edges$, $edge\_in\_mst$)}
+\ElsIf{\texttt{edge\_in\_mst = None} \textgreek{και} \texttt{new\_weight < old\_weight}}
+    \State \Return \texttt{HandleWeightDecrease($V$, $graph\_edges$, $mst\_edges$, $u$, $v$, $new\_weight$)}
+\Else
+    \State \Return \texttt{mst\_edges}
+\EndIf
 \end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}
-\caption{Handle Weight Increase}
+\begin{algorithm}[H]
+\caption{\textnormal{HandleWeightIncrease:}}
 \begin{algorithmic}[1]
-\State \textgreek{Είσοδος: } \( V, \text{graph\_edges}, \text{mst\_edges}, \text{edge\_to\_remove} \)
-\State \textgreek{Έξοδος: } \textgreek{Λίστα με ακμές ενημερωμένου ΕΕΔ}
-\State \text{adj\_list} \(\gets\) \textgreek{Άδεια λίστα γειτνίασης μεγέθους \( V \)} 
-\For{each edge \( e \in \text{mst\_edges} \)}
-    \If{not \((e.u == \text{edge\_to\_remove}.u \text{ and } e.v == \text{edge\_to\_remove}.v)\) or \((e.u == \text{edge\_to\_remove}.v \text{ and } e.v == \text{edge\_to\_remove}.u)\))}
-        \State \text{adj\_list[e.u].append(e.v)}
-        \State \text{adj\_list[e.v].append(e.u)}
+\Statex \textgreek{Είσοδος: $V$, λίστα ακμών $graph\_edges$, $mst\_edges$, ακμή προς αφαίρεση $edge\_to\_remove$}
+\Statex \textgreek{Έξοδος: Ενημερωμένο ΕΕΔ μετά από πιθανή αντικατάσταση ακμής}
+
+\State \textgreek{Δημιούργησε λίστα γειτνίασης χωρίς την $edge\_to\_remove$}
+\State \texttt{adj\_list} $\gets$ [[] \textbf{for} $0 \leq i < V$]
+\ForAll{\texttt{e} \textgreek{στο} \texttt{mst\_edges}}
+    \If{\texttt{e $\neq$ edge\_to\_remove}}
+        \State \texttt{adj\_list[e.u].append(e.v)}
+        \State \texttt{adj\_list[e.v].append(e.u)}
     \EndIf
 \EndFor
 
-\State \text{visited} \(\gets\) Array of False values for \( V \)
-\State \text{component} \(\gets\) Array of 0 values for \( V \)
-\State \text{comp\_id} \(\gets\) 1
+\State \texttt{visited} $\gets$ \textgreek{πίνακας} $[False]$ \textgreek{μεγέθους} $V$
+\State \texttt{component} $\gets \emptyset$
 
-\For{i = 0 to V-1}
-    \If{visited[i] is False}
-        \State \text{bfs(i, comp\_id)}  \Comment{\textgreek{\(bfs\) για να βρούμε τις συνιστώσες}}
-        \State comp\_id \(\gets\) comp\_id + 1
-    \EndIf
-\EndFor
+\State \Call{DFS}{$edge\_to\_remove.u$}
 
-\If{\( \text{component[edge\_to\_remove.u]} == \text{component[edge\_to\_remove.v]} \)}
-    \State \textbf{return} \text{mst\_edges}
+\If{$edge\_to\_remove.v \in$ \texttt{component}}
+    \State \Return \texttt{mst\_edges} \Comment{\textgreek{Ο γράφος παραμένει συνεκτικός}}
 \EndIf
 
-\State \text{min\_edge} \(\gets\) None
-\For{each edge \( e \in \text{graph\_edges} \)}
-    \If{\( \text{component[e.u]} \neq \text{component[e.v]} \)}
-        \If{min\_edge is None or \( e.\text{weight} < \text{min\_edge.weight} \)}
-            \State \( \text{min\_edge} \gets e \)
+\State \textgreek{Αναζήτηση ακμής ελάχιστου βάρους που ενώνει τα 2} \textnormal{components}
+\State \texttt{min\_edge} $\gets$ \texttt{None}
+\ForAll{\texttt{e} \textgreek{στο} \texttt{graph\_edges}}
+    \State \texttt{u\_in} $\gets (e.u \in$ \texttt{component)}
+    \State \texttt{v\_in} $\gets (e.v \in$ \texttt{component)}
+    \If{\texttt{u\_in $\neq$ v\_in}}
+        \If{\texttt{min\_edge = None} \textbf{or} \texttt{e.weight < min\_edge.weight}}
+            \State \texttt{min\_edge $\gets$ e}
         \EndIf
     \EndIf
 \EndFor
 
-\State \text{result} \(\gets\) List of edges in \text{mst\_edges} excluding \text{edge\_to\_remove}
-\If{min\_edge is not None}
-    \State \text{result.append(min\_edge)}
+\State \texttt{new\_mst} $\gets$ \texttt{mst\_edges} \textgreek{χωρίς την} \text{$edge\_to\_remove$}
+\If{\texttt{min\_edge $\neq$ None}}
+    \State \texttt{new\_mst.append(min\_edge)}
 \EndIf
 
-\State \textbf{return} result
+\State \Return \texttt{new\_mst}
+
 \end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}
-\caption{DFS}
+\begin{algorithm}[H]
+\caption{\textnormal{HandleWeightDecrease:}}
 \begin{algorithmic}[1]
-\Procedure{DFS}{$node$, $target$, $adjList$, $visited$, $parent$, $edgeToParent$}
-    \If{$node = target$}
-        \State \Return \textbf{true}
+\Statex \textgreek{Είσοδος: $V$, $graph\_edges$, $mst\_edges$, ακμή $(u, v)$ με νέο βάρος $new\_weight$}
+\Statex \textgreek{Έξοδος: Ενημερωμένο ΕΕΔ αν η νέα ακμή αντικαθιστά υπάρχουσα}
+
+\State \textgreek{Δημιουργία λίστας γειτνίασης από το ΕΕΔ}
+\State \texttt{adj\_list} $\gets$ [[] \textbf{for} $0 \leq i < V$]
+\ForAll{\texttt{e} \textgreek{στο} \texttt{mst\_edges}}
+    \State \texttt{adj\_list[e.u].append((e.v, e))}
+    \State \texttt{adj\_list[e.v].append((e.u, e))}
+\EndFor
+
+\State \textgreek{Εύρεση διαδρομής από $u$ σε $v$ στο ΕΕΔ με} \textnormal{DFS}
+\State \texttt{visited, parent, edge\_to\_parent} $\gets$ \textgreek{πίνακες μεγέθους $V$}
+
+\If{\textbf{not} \Call{DFS}{$u$, $v$}}
+    \State \Return \texttt{mst\_edges}
+\EndIf
+
+\State \textgreek{Βρες ακμή μέγιστου βάρους στη διαδρομή}
+\State \texttt{curr} $\gets v$, \texttt{max\_edge} $\gets$ \texttt{None}
+\While{$curr \neq u$}
+    \State \texttt{edge} $\gets$ \texttt{edge\_to\_parent[curr]}
+    \If{\texttt{max\_edge = None} \textbf{or} \texttt{edge.weight > max\_edge.weight}}
+        \State \texttt{max\_edge $\gets$ edge}
     \EndIf
-    \State $visited[node] \gets true$
-    \ForAll{$(neighbor, edge)$ in $adjList[node]$}
-        \If{\textbf{not} $visited[neighbor]$}
-            \State $parent[neighbor] \gets node$
-            \State $edgeToParent[neighbor] \gets edge$
-            \If{\Call{DFS}{$neighbor$, $target$, $adjList$, $visited$, $parent$, $edgeToParent$}}
-                \State \Return \textbf{true}
-            \EndIf
+    \State \texttt{curr $\gets$ parent[curr]}
+\EndWhile
+
+\If{\texttt{max\_edge.weight > new\_weight}}
+    \State \texttt{new\_mst} $\gets$ \textgreek{$mst\_edges$ χωρίς την $max\_edge$}
+    \State \texttt{new\_mst.append(Edge(u, v, new\_weight))}
+    \State \Return \texttt{new\_mst}
+\Else
+    \State \Return \texttt{mst\_edges}
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{\textnormal{DFS} \textgreek{της} \textnormal{(HandleWeightIncrease)}}
+\begin{algorithmic}[1]
+\Statex \textgreek{Είσοδος: Κόμβος εκκίνησης $node$}
+\Statex \textgreek{Μεταβλητές: πίνακας} \texttt{visited}, \textgreek{σύνολο} \texttt{component}, \textgreek{λίστα γειτνίασης} \texttt{adj\_list}
+
+\Procedure{DFS}{$node$}
+    \State \texttt{visited[node]} $\gets$ \texttt{True}
+    \State \texttt{component.add(node)}
+    \ForAll{\texttt{neighbor} \textbf{in} \texttt{adj\_list[node]}}
+        \If{\texttt{not visited[neighbor]}}
+            \State \Call{DFS}{neighbor}
         \EndIf
     \EndFor
-    \State \Return \textbf{false}
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
 
-\vspace{1em}
-
-\begin{algorithm}
-\caption{Handle Reduced Weight($V$, $graphEdges$, $mstEdges$, $u$, $v$, $newWeight$)}
+\begin{algorithm}[H]
+\caption{\textgreek{$DFS$ για εύρεση διαδρομής από $u$ σε $v$ στο ΕΕΔ} \textnormal{(HandleWeightDecrease)}}
 \begin{algorithmic}[1]
-\State \textgreek{Αρχικοποίησε λίστα γειτνίασης} $adjList[0 \dots V-1] \gets \textgreek{Άδειες λίστες}$
-\ForAll{$e \in mstEdges$}
-    \State Add $(e.v, e)$ to $adjList[e.u]$ and $(e.u, e)$ to $adjList[e.v]$
-\EndFor
+\Statex \textgreek{Είσοδος: $u$, $v$, λίστα γειτνίασης $adj\_list$ από ΕΕΔ}
+\Statex \textgreek{Έξοδος: Πίνακες} \texttt{parent} \textgreek{και} \texttt{edge\_to\_parent} \textgreek{που περιγράφουν τη διαδρομή από $u$ σε $v$}
 
-\State \textgreek{Αρχικοποίησε πίνακες}: $visited[0 \dots V-1] \gets false$, $parent[0 \dots V-1] \gets -1$, $edgeToParent[0 \dots V-1] \gets \text{None}$
+\State \texttt{visited} $\gets$ \textgreek{πίνακας} $[False]$ \textgreek{μεγέθους} $V$
+\State \texttt{parent} $\gets$ \textgreek{πίνακας} $[-1]$ \textgreek{μεγέθους} $V$
+\State \texttt{edge\_to\_parent} $\gets$ \textgreek{πίνακας} $[None]$ \textgreek{μεγέθους} $V$
 
-\If{\textbf{not} \Call{DFS}{$u$, $v$, $adjList$, $visited$, $parent$, $edgeToParent$}}
-    \State \Return $mstEdges$
-\EndIf
-
-\State $curr \gets v$, $maxEdge \gets$ None
-\While{$curr \ne u$}
-    \State $edge \gets edgeToParent[curr]$
-    \If{$maxEdge = \text{None}$ \textbf{or} $edge.weight > maxEdge.weight$}
-        \State $maxEdge \gets edge$
+\Function{DFS}{$node$, $target$}
+    \If{$node = target$}
+        \State \Return \texttt{True}
     \EndIf
-    \State $curr \gets parent[curr]$
-\EndWhile
-
-\If{$maxEdge \ne \text{None}$ \textbf{and} $maxEdge.weight > newWeight$}
-    \State $newMST \gets$ all edges in $mstEdges$ except $maxEdge$
-    \State Add edge $(u, v, newWeight)$ to $newMST$
-    \State \Return $newMST$
-\EndIf
-
-\State \Return $mstEdges$
+    \State \texttt{visited[node]} $\gets$ \texttt{True}
+    \ForAll{$(neighbor, edge)$ \textbf{in} \texttt{adj\_list[node]}}
+        \If{\texttt{not visited[neighbor]}}
+            \State \texttt{parent[neighbor]} $\gets$ \texttt{node}
+            \State \texttt{edge\_to\_parent[neighbor]} $\gets$ \texttt{edge}
+            \If{\Call{DFS}{$neighbor$, $target$}}
+                \State \Return \texttt{True}
+            \EndIf
+        \EndIf
+    \EndFor
+    \State \Return \texttt{False}
+\EndFunction
 \end{algorithmic}
 \end{algorithm}
 
 
-\begin{algorithm}
-\caption{Update MST }
-\begin{algorithmic}[1]
-\State \textgreek{Είσοδος: }
-\State \quad \( V \) (\textgreek{Αριθμός Κορυφών})
-\State \quad \( \text{graph\_edges} \) \textgreek{Λίστα ακμών με τα βάρη τους}
-\State \quad \( \text{mst\_edges} \) \textgreek{Λίστα ακμών στο παρών ΕΕΔ}
-\State \quad \( u, v \) \textgreek{Κορυφές της ακμής που ενημερώνεται}
-\State \quad \( \text{new\_weight} \) \textgreek{ (Νέο βάρος της ακμής \( (u, v) \))}
-\State \textgreek{Έξοδος: } \textgreek{Λίστα με τις ακμές του ενημερωμένου ΕΕΔ}
-
-\State \( \text{old\_weight} \gets \text{None} \)
-\For{each edge \( e \in \text{graph\_edges} \)}
-    \If{(e.u == u and e.v == v) or (e.u == v and e.v == u)}
-        \State \( \text{old\_weight} \gets e.\text{weight} \)
-        \State \( e.\text{weight} \gets \text{new\_weight} \)
-        \State \textbf{break}
-    \EndIf
-\EndFor
-
-\If{\( \text{old\_weight} \) is \( \text{None} \)}
-    \State \text{return None}  \Comment{\textgreek{Η ενημερωμένη ακμή δεν βρέθηκε στον γράφο}}
-\EndIf
-
-\State \( \text{edge\_in\_mst} \gets \text{None} \)
-\For{each edge \( e \in \text{mst\_edges} \)}
-    \If{(e.u == u and e.v == v) or (e.u == v and e.v == u)}
-        \State \( \text{edge\_in\_mst} \gets e \)
-        \State \( e.\text{weight} \gets \text{new\_weight} \)
-        \State \textbf{break}
-    \EndIf
-\EndFor
-
-\If{edge\_in\_mst is not None and new\_weight \(>\) old\_weight}
-    \State \textbf{return} \texttt{handle\_weight\_increase}(V, graph\_edges, mst\_edges, edge\_in\_mst)
-\EndIf
-
-\If{edge\_in\_mst is None and new\_weight \(<\) old\_weight}
-    \State \textbf{return} \texttt{handle\_weight\_decrease}(V, graph\_edges, mst\_edges, u, v, new\_weight)
-\EndIf
-
-\State \textbf{return} mst\_edges
-\end{algorithmic}
-\end{algorithm}
 
 \end{document}
