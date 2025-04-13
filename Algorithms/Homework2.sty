@@ -13,33 +13,31 @@
 \section*{Exercise 2}
 
 \begin{algorithm}
-\caption{\begin{otherlanguage}{greek}Βρες την Ειδική Κορυφή σε $O(n)$\end{otherlanguage}}
+\caption{\begin{otherlanguage}{greek}Βρες την Ειδική Κορυφή σε $O(n)$ (με πίνακα γειτνίασης)\end{otherlanguage}}
 \begin{algorithmic}[1]
-\State \textbf{\begin{otherlanguage}{greek}Είσοδος:\end{otherlanguage}} \begin{otherlanguage}{greek}Γράφημα $G$ (ως \end{otherlanguage} adjacency matrix \begin{otherlanguage}{greek}) με $n$ κορυφές και συνάρτηση \texttt{γνωρίζει$(u, v)$} που επιστρέφει \texttt{True} αν υπάρχει ακμή από $u$ προς $v$.\end{otherlanguage}
+\State \textbf{\begin{otherlanguage}{greek}Είσοδος:\end{otherlanguage}} \begin{otherlanguage}{greek}Πίνακας γειτνίασης $G[1\ldots n][1\ldots n]$ για γράφημα με $n$ κορυφές.\end{otherlanguage}
 \State \textbf{\begin{otherlanguage}{greek}Έξοδος:\end{otherlanguage}} \begin{otherlanguage}{greek}\texttt{True} αν υπάρχει ειδική κορυφή, αλλιώς \texttt{False}.\end{otherlanguage}
 \State
 
-\State \textbf{\begin{otherlanguage}{greek}Βήμα 1: Επιλογή υποψηφίου\end{otherlanguage}}
 \State \begin{otherlanguage}{greek}υποψήφιος $\gets 1$\end{otherlanguage}
 \For{$i = 2$ \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $n$}
-    \If{\begin{otherlanguage}{greek}\texttt{γνωρίζει(υποψήφιος, $i$)}\end{otherlanguage}}
-        \State \begin{otherlanguage}{greek}υποψήφιος \gets $i$\end{otherlanguage}
+    \If{$G$[\begin{otherlanguage}{greek}υποψήφιος\end{otherlanguage}]$[i] = 1$}
+        \State \begin{otherlanguage}{greek}υποψήφιος $\gets i$\end{otherlanguage}
     \EndIf
 \EndFor
 
 \State
 
-\State \textbf{\begin{otherlanguage}{greek}Βήμα 2: Έλεγχος εγκυρότητας\end{otherlanguage}}
+
 \For{$i = 1$ \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $n$}
-    \If{\begin{otherlanguage}{greek}$i$ = υποψήφιος\end{otherlanguage}}
-        \State \begin{otherlanguage}{greek}\textbf{συνέχισε}\end{otherlanguage}
+    \If{$i =$ \begin{otherlanguage}{greek}υποψήφιος\end{otherlanguage}}
+        \State \textbf{\begin{otherlanguage}{greek}συνέχισε\end{otherlanguage}}
     \EndIf
-    \If{\begin{otherlanguage}{greek}\textbf{όχι} \texttt{γνωρίζει($i$, υποψήφιος)} \textbf{ή} \texttt{γνωρίζει(υποψήφιος, $i$)}\end{otherlanguage}}
-        \State \Return \texttt{False}
+    \If{$G[i]$[\begin{otherlanguage}{greek}υποψήφιος\end{otherlanguage}]$ = 0$ \textbf{ή} $G$[\begin{otherlanguage}{greek}υποψήφιος\end{otherlanguage}]$[i] = 1$}
+        \State \Return \texttt{$False$}
     \EndIf
 \EndFor
-
-\State \Return \texttt{True}
+\State \Return \texttt{$True$}
 \end{algorithmic}
 \end{algorithm}
 
@@ -47,27 +45,29 @@
 \begin{otherlanguage}{greek}
 Ο αλγόριθμος εντοπίζει αν υπάρχει μία ειδική κορυφή $c$ στο γράφημα με τις εξής ιδιότητες:
 \begin{itemize}
-    \item Για κάθε $i \neq c$, ισχύει \texttt{γνωρίζει$(i, c)$} = \texttt{$True$}
-    \item Για κάθε $i \neq c$, ισχύει \texttt{γνωρίζει$(c, i)$} = \texttt{$False$}
+    \item Για κάθε $i \neq c$, υπάρχει ακμή $(i, c)$
+    \item Για κάθε $i \neq c$, δεν υπάρχει ακμή $(c, i)$
 \end{itemize}
 
-Ο αλγόριθμος αποτελείται από δύο φάσεις:
+
+Ο αλγόριθμος αποτελείται από δύο φάσεις:\\
 \end{otherlanguage}
 
-\paragraph{\begin{otherlanguage}{greek}Βήμα 1: Επιλογή Υποψήφιου\end{otherlanguage}}
+
+\textbf{\begin{otherlanguage}{greek}Βήμα 1: Επιλογή Υποψήφιου\end{otherlanguage}}
 
 \begin{otherlanguage}{greek}
 Αρχικά θεωρούμε τον κόμβο $1$ ως υποψήφιο. Για κάθε επόμενο κόμβο $i$ από $2$ έως $n$, ελέγχουμε:
 
 \begin{itemize}
-    \item Αν ο τρέχων υποψήφιος \texttt{γνωρίζει($i$)}, τότε ο υποψήφιος απορρίπτεται (δεν είναι η ειδική κορυφή), και το $i$ γίνεται ο νέος υποψήφιος.
+    \item Αν ο τρέχων υποψήφιος έχει ακμή προς $i$, τότε ο υποψήφιος απορρίπτεται (δεν είναι η ειδική κορυφή), και το $i$ γίνεται ο νέος υποψήφιος.
     \item Αλλιώς, το $i$ δεν μπορεί να είναι η ειδική κορυφή γιατί υπάρχει κάποιος που δεν τον γνωρίζει, και κρατάμε τον ίδιο υποψήφιο.
 \end{itemize}
 
 Στο τέλος του πρώτου βήματος, μένει ένας μοναδικός υποψήφιος που ενδέχεται να είναι η ειδική κορυφή.
-\end{otherlanguage}
+\end{otherlanguage}\\
 
-\paragraph{\begin{otherlanguage}{greek}Βήμα 2: Έλεγχος Εγκυρότητας\end{otherlanguage}}
+\textbf{\begin{otherlanguage}{greek}Βήμα 2: Έλεγχος Εγκυρότητας\end{otherlanguage}}
 
 \begin{otherlanguage}{greek}
 Για κάθε κόμβο $i \neq$ υποψήφιος, ελέγχουμε:
@@ -124,9 +124,9 @@
     \item[(1)] Ο αλγόριθμος δεν αναθέτει ποτέ το ίδιο χρώμα σε δύο επικαλυπτόμενα διαστήματα.
     \item[(2)] Ο αριθμός χρωμάτων που χρησιμοποιούνται είναι ελάχιστος δυνατός.
 \end{itemize}
-\end{otherlanguage}
+\end{otherlanguage}\\
 
-\paragraph{\begin{otherlanguage}{greek}Απόδειξη ιδιότητας (1):\end{otherlanguage}}\begin{otherlanguage}{greek} Κανένα δύο επικαλυπτόμενα διαστήματα δεν έχουν το ίδιο χρώμα.\end{otherlanguage}
+\textbf{\begin{otherlanguage}{greek}Απόδειξη ιδιότητας (1):\end{otherlanguage}}\begin{otherlanguage}{greek} Κανένα δύο επικαλυπτόμενα διαστήματα δεν έχουν το ίδιο χρώμα.\end{otherlanguage}
 
 \begin{otherlanguage}{greek}
 Έστω ότι το διάστημα $I_i = (l_i, r_i)$ παίρνει ένα χρώμα $c$ από το σύνολο των διαθέσιμων χρωμάτων $AvailableColours$.
@@ -138,25 +138,25 @@
 Ομοίως, αν το $I_i$ λάβει νέο χρώμα $c$ (δεν υπάρχει διαθέσιμο), αυτό σημαίνει ότι επικαλύπτεται με όλα τα ενεργά διαστήματα που βρίσκονται στην $PQ$, τα οποία έχουν διαφορετικά χρώματα.
 
 Άρα, κανένα δύο επικαλυπτόμενα διαστήματα δεν έχουν το ίδιο χρώμα.
-\end{otherlanguage}
+\end{otherlanguage}\\
 
-\paragraph{\begin{otherlanguage}{greek}Απόδειξη ιδιότητας (2):\end{otherlanguage} } \begin{otherlanguage}{greek} Ο αριθμός χρωμάτων είναι ελάχιστος.\end{otherlanguage}
+\textbf{\begin{otherlanguage}{greek}Απόδειξη ιδιότητας (2):\end{otherlanguage} } \begin{otherlanguage}{greek} Ο αριθμός χρωμάτων είναι ελάχιστος.\end{otherlanguage}
 
 \begin{otherlanguage}{greek}
 Το πλήθος των χρωμάτων που χρησιμοποιούνται αντιστοιχεί στον μέγιστο αριθμό επικαλυπτόμενων διαστημάτων σε οποιοδήποτε χρονικό σημείο. Ο λόγος είναι ότι το χρώμα επαναχρησιμοποιείται αμέσως μόλις το αντίστοιχο διάστημα τελειώσει.
 
 Δηλαδή, ένα νέο χρώμα δημιουργείται μόνο όταν το τρέχον διάστημα επικαλύπτεται με όλα τα προηγούμενα "ενεργά" διαστήματα, και δεν υπάρχει κανένα χρώμα διαθέσιμο.
 
-\end{otherlanguage}
+\end{otherlanguage}\\
 
-\paragraph{\begin{otherlanguage}{greek}Συμπέρασμα:\end{otherlanguage}}
+
 
 \begin{otherlanguage}{greek}
-Ο αλγόριθμος αναθέτει έγκυρα χρώματα χωρίς επικαλύψεις, και χρησιμοποιεί τον ελάχιστο δυνατό αριθμό χρωμάτων για τη χρωμάτιση των διαστημάτων.
-\end{otherlanguage}
+Άρα αλγόριθμος αναθέτει έγκυρα χρώματα χωρίς επικαλύψεις, και χρησιμοποιεί τον ελάχιστο δυνατό αριθμό χρωμάτων για τη χρωμάτιση των διαστημάτων.
+\end{otherlanguage}\\
 
 
-\paragraph{\begin{otherlanguage}{greek}Πολυπλοκότητα:\end{otherlanguage}}
+\textbf{\begin{otherlanguage}{greek}Πολυπλοκότητα:\end{otherlanguage}}
 
 \begin{otherlanguage}{greek}
 Αναλύουμε τα βήματα του αλγορίθμου:
