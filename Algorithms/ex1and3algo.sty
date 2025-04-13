@@ -157,7 +157,7 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 \begin{algorithm}[H]
 \caption{\textgreek{Ενημέρωση ΕΕΔ μετά από Αλλαγή Βάρους Ακμής}}
 \begin{algorithmic}[1]
-\Statex \textgreek{Είσοδος: $G = (V, E)$, λίστα με όλες τις ακμές $graph\_edges$, αρχικό MST $mst\_edges$, ακμή $(u, v)$, νέο βάρος $new\_weight$}
+\Statex \textgreek{Είσοδος: $G = (V, E)$, λίστα με όλες τις ακμές $graph\_edges$, αρχικό $MST$ $mst\_edges$, ακμή $(u, v)$, νέο βάρος $new\_weight$}
 \Statex \textgreek{Έξοδος: Το ενημερωμένο ΕΕΔ μετά την αλλαγή βάρους}
 
 \State \textgreek{Αρχικοποίησε} \texttt{old\_weight} $\gets$ \texttt{None}
@@ -327,7 +327,6 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 \EndFunction
 \end{algorithmic}
 \end{algorithm}
-
 
 
 \end{document}
