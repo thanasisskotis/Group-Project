@@ -11,8 +11,10 @@
 \date{}
 
 \textgreek{Μέλη Ομάδας: }
+\begin{itemize}
 \item \textgreek{Ιγγλεζάκης Αναστάσιος - 1115202300054}
 \item \textgreek{Σκότης Αθανάσιος - 1115202300188}
+\end{itemize}
 
 \section*{Exercise 1}
 \section*{\textgreek{Περιγραφή Αλγορίθμου: }}
@@ -33,7 +35,7 @@
     \[
     \min_{v \in V} \text{dist}[v][v]
     \]
-    Αν $\text{dist}[v][v] = \infty$ \textgreek{για όλα τα $v$, τότε το γράφημα δεν περιέχει κύκλο.}
+    \textgreek{Αν} $\text{dist}[v][v] = \infty$ \textgreek{για όλα τα $v$, τότε το γράφημα δεν περιέχει κύκλο.}
 \end{enumerate}
 
 \section*{\textgreek{Ψευδοκώδικας:}}
@@ -93,7 +95,7 @@
 
 \textgreek{Αθροίζουμε ως προς όλους τους συνδυασμούς \( i, j, k \):}
 
-\sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) = O(n) \cdot O(n) \cdot O(n) = O(n^3)
+$\sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) = O(n) \cdot O(n) \cdot O(n) = O(n^3)$
 
 \subsection*{\textgreek{Μετά από την επεξεργασία μέσω του τριπλού βρόγχου επανάληψης: }}
 
@@ -101,12 +103,12 @@
 \[
 \min_{v \in V} \text{dist}[v][v]
 \]
-\textgreek{Αυτό απαιτεί: }  \sum_{v=1}^{n} O(1) = O(n)  \textgreek{ πράξεις.}
+\textgreek{Αυτό απαιτεί: }  $\sum_{v=1}^{n} O(1) = O(n)$  \textgreek{ πράξεις.}
 
 \subsection*{\textgreek{Συνολική πολυπλοκότητα: }}
 
-T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) = O(n^3) 
-+ O(n) = \mathcal{O}(n^3)
+$T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) = O(n^3) 
++ O(n) = \mathcal{O}(n^3)$
 
 
 
@@ -167,7 +169,7 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 \State \begin{otherlanguage}{greek}υποψήφιος $\gets 1$\end{otherlanguage}
 \For{$i = 2$ \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $n$}
     \If{\begin{otherlanguage}{greek}\texttt{γνωρίζει(υποψήφιος, $i$)}\end{otherlanguage}}
-        \State \begin{otherlanguage}{greek}υποψήφιος \gets $i$\end{otherlanguage}
+        \State \begin{otherlanguage}{greek}υποψήφιος $\gets i$\end{otherlanguage}
     \EndIf
 \EndFor
 
