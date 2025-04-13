@@ -1,0 +1,502 @@
+\documentclass{article}
+\usepackage[greek,english]{babel}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{fullpage}
+
+\begin{document}
+\author{}
+\date{}
+
+\section*{Exercise 1}
+\section*{\textgreek{Περιγραφή Αλγορίθμου: }}
+\begin{enumerate}
+    \item \textgreek{Αρχικοποίηση του πίνακα αποστάσεων:}
+    \[
+    \text{dist}[i][j] =
+    \begin{cases}
+    w(i, j), & \textgreek{αν υπάρχει ακμή } i \rightarrow j \\
+    \infty, & \textgreek{διαφορετικά}
+    \end{cases}
+    \]
+    \item \textgreek{Για κάθε κόμβο $k \in V$, και για κάθε ζεύγος κόμβων $i, j \in V$, βρίσκουμε τη συντομότερη διαδρομή μεταξύ $i$ και $j$}:
+    \[
+    \text{dist}[i][j] = \min(\text{dist}[i][j], \text{dist}[i][k] + \text{dist}[k][j])
+    \]
+    \item \textgreek{Ο συντομότερος κύκλος δίνεται από:}
+    \[
+    \min_{v \in V} \text{dist}[v][v]
+    \]
+    Αν $\text{dist}[v][v] = \infty$ \textgreek{για όλα τα $v$, τότε το γράφημα δεν περιέχει κύκλο.}
+\end{enumerate}
+
+\section*{\textgreek{Ψευδοκώδικας:}}
+
+\begin{algorithm}
+\caption{\textgreek{Συντομότερος Κατευθυνόμενος Κύκλος}}
+\begin{algorithmic}[1]
+\Statex \textgreek{Είσοδος: Γράφος $G = (V, A)$ με θετικά βάρη $w(u, v)$}
+\Statex \textgreek{Έξοδος: Μήκος του συντομότερου κατευθυνόμενου κύκλου ή \texttt{None} αν δεν υπάρχει κύκλος}
+
+\State Αρχικοποίησε τον πίνακα \texttt{dist[$n$][$n$]} ως εξής:
+\ForAll{$i, j \in V$}
+    \If{$i = j$}
+        \State \texttt{dist[$i$][$j$]} $\gets 0$
+    \ElsIf{$(i, j) \in A$}
+        \State \texttt{dist[$i$][$j$]} $\gets w(i, j)$
+    \Else
+        \State \texttt{dist[$i$][$j$]} $\gets \infty$
+    \EndIf
+\EndFor
+
+\For{$k = 1$ to $n$}
+    \For{$i = 1$ to $n$}
+        \For{$j = 1$ to $n$}
+            \State \texttt{dist[$i$][$j$]} $\gets \min(\texttt{dist[$i$][$j$]}, \texttt{dist[$i$][$k$]} + \texttt{dist[$k$][$j$]})$
+        \EndFor
+    \EndFor
+\EndFor
+
+\State \texttt{minCycle} $\gets \infty$
+\For{$v = 1$ to $n$}
+    \State \texttt{minCycle} $\gets \min(\texttt{minCycle}, \texttt{dist[$v$][$v$]})$
+\EndFor
+
+\If{\texttt{minCycle = $\infty$}}
+    \State \Return \texttt{None}
+\Else
+    \State \Return \texttt{minCycle}
+\EndIf
+
+\end{algorithmic}
+\end{algorithm}
+
+\section*{\textgreek{Ανάλυση Πολυπλοκότητας: }}
+
+\textgreek{Ο αλγόριθμος αποτελείται από τρεις εμφωλευμένους βρόγχους επανάληψης. Έστω \( n = |V| \)}
+
+\subsection*{Main Loop}
+
+\textgreek{Υπολογίζουμε: }
+\[
+\text{dist}[i][j] = \min(\text{dist}[i][j], \text{dist}[i][k] + \text{dist}[k][j])
+\]
+\textgreek{για κάθε } \( i, j, k \in \{1, 2, \dots, n\} \).
+
+\subsection*{\textgreek{Συνολικός αριθμός πράξεων τριπλού βρόγχου:} }
+
+\textgreek{Αθροίζουμε ως προς όλους τους συνδυασμούς \( i, j, k \):}
+
+\sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) = O(n) \cdot O(n) \cdot O(n) = O(n^3)
+
+\subsection*{\textgreek{Μετά από την επεξεργασία μέσω του τριπλού βρόγχου επανάληψης: }}
+
+\textgreek{\textgreek{Έλεγχος διαγώνιων στοιχείων για την εύρεση συντομότερου κύκλου: }}
+\[
+\min_{v \in V} \text{dist}[v][v]
+\]
+\textgreek{Αυτό απαιτεί: }  \sum_{v=1}^{n} O(1) = O(n)  \textgreek{ πράξεις.}
+
+\subsection*{\textgreek{Συνολική πολυπλοκότητα: }}
+
+T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) = O(n^3) 
++ O(n) = \mathcal{O}(n^3)
+
+
+
+\section*{\textgreek{Απόδειξη Ορθότητας}}
+
+\textgreek{Έστω $V = \{1, 2, \dots, n\}$ το σύνολο των κόμβων. Ορίζουμε τη συντομότερη διαδρομή από $i$ σε $j$ χρησιμοποιώντας μόνο ενδιάμεσους κόμβους από το υποσύνολο $\{1, 2, \dots, k\}$. Την ονομάζουμε $\delta_k(i,j)$. Η επαγωγική υπόθεση ορίζει ότι για κάθε $k$, ισχύει η εξής σχέση:}
+
+\[
+\delta_k(i,j) = \min \left\{ \delta_{k-1}(i,j),\ \delta_{k-1}(i,k) + \delta_{k-1}(k,j) \right\}
+\]
+\textgreek{
+\begin{itemize}
+    \item Για $k = 0$ (αν δεν υπάρχει ενδιάμεσος κόμβος ανάμεσα στους κόμβους $i$ και $j$), η $\delta_0(i,j)$ είναι:
+    \[
+    \delta_0(i,j) =
+    \begin{cases}
+    w(i,j), & \text{αν υπάρχει ακμή } (i,j) \in A \\
+    \infty, & \text{διαφορετικά}
+    \end{cases}
+    \]
+    \item Έστω ότι η πρόταση ισχύει για $k-1$, και εξετάζουμε την περίπτωση $k$:
+    \begin{itemize}
+        \item Αν η συντομότερη διαδρομή από $i$ σε $j$ **δεν περιλαμβάνει τον $k$** ως ενδιάμεσο κόμβο, τότε όλοι οι ενδιάμεσοι κόμβοι ανήκουν στο $\{1, \dots, k-1\}$ και:
+        \[
+        \delta_k(i,j) = \delta_{k-1}(i,j)
+        \]
+        \item Αν η διαδρομή περιλαμβάνει τον $k$ ως ενδιάμεσο, τότε διασπάται σε δύο διαδρομές:
+        \[
+        \delta_k(i,j) = \delta_{k-1}(i,k) + \delta_{k-1}(k,j)
+        \]
+        που σύμφωνα με την επαγωγική υπόθεση είναι σωστές.
+    \end{itemize}
+\end{itemize}
+}
+\textgreek{
+Επομένως, η αναδρομική σχέση υπολογίζει σωστά το $\delta_k(i,j)$ για κάθε $k$, και τελικά το $\delta_n(i,j)$ είναι η συντομότερη διαδρομή από $i$ σε $j$.}
+
+\subsection*{\textgreek{Εύρεση Κύκλου}}
+\textgreek{
+Η συντομότερη κατευθυνόμενη κυκλική διαδρομή είναι μια διαδρομή που ξεκινά και καταλήγει στον ίδιο κόμβο. Άρα για κάθε $v \in V$ η ποσότητα} $\text{dist}[v][v]$ \textgreek{περιέχει το μήκος της συντομότερης κυκλικής διαδρομής που περνά από το $v$.}
+
+\textgreek{Το ελάχιστο αυτών:}
+\[
+\min_{v \in V} \text{dist}[v][v]
+\]
+\textgreek{είναι το μήκος του συντομότερου κατευθυνόμενου κύκλου.}
+
+\section*{Exercise 2}
+
+\begin{algorithm}
+\caption{\begin{otherlanguage}{greek}Βρες την Ειδική Κορυφή σε $O(n)$\end{otherlanguage}}
+\begin{algorithmic}[1]
+\State \textbf{\begin{otherlanguage}{greek}Είσοδος:\end{otherlanguage}} \begin{otherlanguage}{greek}Γράφημα $G$ (ως \end{otherlanguage} adjacency matrix \begin{otherlanguage}{greek}) με $n$ κορυφές και συνάρτηση \texttt{γνωρίζει$(u, v)$} που επιστρέφει \texttt{True} αν υπάρχει ακμή από $u$ προς $v$.\end{otherlanguage}
+\State \textbf{\begin{otherlanguage}{greek}Έξοδος:\end{otherlanguage}} \begin{otherlanguage}{greek}\texttt{True} αν υπάρχει ειδική κορυφή, αλλιώς \texttt{False}.\end{otherlanguage}
+\State
+
+\State \textbf{\begin{otherlanguage}{greek}Βήμα 1: Επιλογή υποψηφίου\end{otherlanguage}}
+\State \begin{otherlanguage}{greek}υποψήφιος $\gets 1$\end{otherlanguage}
+\For{$i = 2$ \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $n$}
+    \If{\begin{otherlanguage}{greek}\texttt{γνωρίζει(υποψήφιος, $i$)}\end{otherlanguage}}
+        \State \begin{otherlanguage}{greek}υποψήφιος \gets $i$\end{otherlanguage}
+    \EndIf
+\EndFor
+
+\State
+
+\State \textbf{\begin{otherlanguage}{greek}Βήμα 2: Έλεγχος εγκυρότητας\end{otherlanguage}}
+\For{$i = 1$ \textbf{\begin{otherlanguage}{greek}μέχρι\end{otherlanguage}} $n$}
+    \If{\begin{otherlanguage}{greek}$i$ = υποψήφιος\end{otherlanguage}}
+        \State \begin{otherlanguage}{greek}\textbf{συνέχισε}\end{otherlanguage}
+    \EndIf
+    \If{\begin{otherlanguage}{greek}\textbf{όχι} \texttt{γνωρίζει($i$, υποψήφιος)} \textbf{ή} \texttt{γνωρίζει(υποψήφιος, $i$)}\end{otherlanguage}}
+        \State \Return \texttt{False}
+    \EndIf
+\EndFor
+
+\State \Return \texttt{True}
+\end{algorithmic}
+\end{algorithm}
+
+
+\begin{otherlanguage}{greek}
+Ο αλγόριθμος εντοπίζει αν υπάρχει μία ειδική κορυφή $c$ στο γράφημα με τις εξής ιδιότητες:
+\begin{itemize}
+    \item Για κάθε $i \neq c$, ισχύει \texttt{γνωρίζει$(i, c)$} = \texttt{$True$}
+    \item Για κάθε $i \neq c$, ισχύει \texttt{γνωρίζει$(c, i)$} = \texttt{$False$}
+\end{itemize}
+
+Ο αλγόριθμος αποτελείται από δύο φάσεις:
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Βήμα 1: Επιλογή Υποψήφιου\end{otherlanguage}}
+
+\begin{otherlanguage}{greek}
+Αρχικά θεωρούμε τον κόμβο $1$ ως υποψήφιο. Για κάθε επόμενο κόμβο $i$ από $2$ έως $n$, ελέγχουμε:
+
+\begin{itemize}
+    \item Αν ο τρέχων υποψήφιος \texttt{γνωρίζει($i$)}, τότε ο υποψήφιος απορρίπτεται (δεν είναι η ειδική κορυφή), και το $i$ γίνεται ο νέος υποψήφιος.
+    \item Αλλιώς, το $i$ δεν μπορεί να είναι η ειδική κορυφή γιατί υπάρχει κάποιος που δεν τον γνωρίζει, και κρατάμε τον ίδιο υποψήφιο.
+\end{itemize}
+
+Στο τέλος του πρώτου βήματος, μένει ένας μοναδικός υποψήφιος που ενδέχεται να είναι η ειδική κορυφή.
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Βήμα 2: Έλεγχος Εγκυρότητας\end{otherlanguage}}
+
+\begin{otherlanguage}{greek}
+Για κάθε κόμβο $i \neq$ υποψήφιος, ελέγχουμε:
+\begin{itemize}
+    \item Αν \texttt{γνωρίζει($i$, υποψήφιος)} είναι \texttt{$False$}, τότε απορρίπτεται.
+    \item Αν \texttt{γνωρίζει(υποψήφιος, $i$)} είναι \texttt{$True$}, τότε επίσης απορρίπτεται.
+\end{itemize}
+
+\paragraph{Συμπέρασμα:} Αν περάσει τον έλεγχο, επιστρέφεται \texttt{$True$}, αλλιώς \texttt{$False$}.
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Χρονική Πολυπλοκότητα:\end{otherlanguage}} $O(n)$ \begin{otherlanguage}{greek} για τον 1ο βρόχο επανάληψης και $Ο(n)$ και στο 2ο βρόχο επανάληψης άρα στο σύνολο έχουμε $O(n) + O(n) = O(n)$ , άρα αλγοριθμικά βέλτιστος.\end{otherlanguage}
+
+\section*{Exercise 3}
+
+\begin{algorithm}
+\caption{Find Path Between Two Vertices in MST (BFS)}
+\begin{algorithmic}[1]
+\Function{find\_path}{start, end}
+    \State \textgreek{Αρχικοποίηση ουράς} \( q \gets \{start\} \)
+    \State \( \text{visited[start]} \gets \text{True} \)
+    \While{\( q \) is not empty}
+        \State \( \text{node} \gets q.pop() \)
+        \If{\( \text{node} == \text{end} \)}
+           \Comment{ \textgreek{Ανακατασκευή του μονοπατιού χρησιμοποιώντας τον πίνακα}} \textnormal{parent}
+            \State \( \text{curr} \gets \text{end} \)
+            \While{\( \text{curr} \ne \text{start} \)}
+                \State \( \text{prev} \gets \text{parent[curr]} \)
+                \State \( \text{curr} \gets \text{prev} \)
+            \EndWhile
+            \State \Return \text{True}
+        \EndIf
+        \ForAll{neighbor \( \in \text{adj\_list[node]} \)}
+            \If{not \( \text{visited[neighbor]} \)}
+                \State \( \text{visited[neighbor]} \gets \text{True} \)
+                \State \( \text{parent[neighbor]} \gets \text{node} \)
+                \State \( q.push(neighbor) \)
+            \EndIf
+        \EndFor
+    \EndWhile
+    \State \Return False
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Handle Weight Increase}
+\begin{algorithmic}[1]
+\State \textgreek{Είσοδος: } \( V, \text{graph\_edges}, \text{mst\_edges}, \text{edge\_to\_remove} \)
+\State \textgreek{Έξοδος: } \textgreek{Λίστα με ακμές ενημερωμένου ΕΕΔ}
+\State \text{adj\_list} \(\gets\) \textgreek{Άδεια λίστα γειτνίασης μεγέθους \( V \)} 
+\For{each edge \( e \in \text{mst\_edges} \)}
+    \If{not \((e.u == \text{edge\_to\_remove}.u \text{ and } e.v == \text{edge\_to\_remove}.v)\) or \((e.u == \text{edge\_to\_remove}.v \text{ and } e.v == \text{edge\_to\_remove}.u)\))}
+        \State \text{adj\_list[e.u].append(e.v)}
+        \State \text{adj\_list[e.v].append(e.u)}
+    \EndIf
+\EndFor
+
+\State \text{visited} \(\gets\) Array of False values for \( V \)
+\State \text{component} \(\gets\) Array of 0 values for \( V \)
+\State \text{comp\_id} \(\gets\) 1
+
+\For{i = 0 to V-1}
+    \If{visited[i] is False}
+        \State \text{bfs(i, comp\_id)}  \Comment{\textgreek{\(bfs\) για να βρούμε τις συνιστώσες}}
+        \State comp\_id \(\gets\) comp\_id + 1
+    \EndIf
+\EndFor
+
+\If{\( \text{component[edge\_to\_remove.u]} == \text{component[edge\_to\_remove.v]} \)}
+    \State \textbf{return} \text{mst\_edges}
+\EndIf
+
+\State \text{min\_edge} \(\gets\) None
+\For{each edge \( e \in \text{graph\_edges} \)}
+    \If{\( \text{component[e.u]} \neq \text{component[e.v]} \)}
+        \If{min\_edge is None or \( e.\text{weight} < \text{min\_edge.weight} \)}
+            \State \( \text{min\_edge} \gets e \)
+        \EndIf
+    \EndIf
+\EndFor
+
+\State \text{result} \(\gets\) List of edges in \text{mst\_edges} excluding \text{edge\_to\_remove}
+\If{min\_edge is not None}
+    \State \text{result.append(min\_edge)}
+\EndIf
+
+\State \textbf{return} result
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{DFS}
+\begin{algorithmic}[1]
+\Procedure{DFS}{$node$, $target$, $adjList$, $visited$, $parent$, $edgeToParent$}
+    \If{$node = target$}
+        \State \Return \textbf{true}
+    \EndIf
+    \State $visited[node] \gets true$
+    \ForAll{$(neighbor, edge)$ in $adjList[node]$}
+        \If{\textbf{not} $visited[neighbor]$}
+            \State $parent[neighbor] \gets node$
+            \State $edgeToParent[neighbor] \gets edge$
+            \If{\Call{DFS}{$neighbor$, $target$, $adjList$, $visited$, $parent$, $edgeToParent$}}
+                \State \Return \textbf{true}
+            \EndIf
+        \EndIf
+    \EndFor
+    \State \Return \textbf{false}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\vspace{1em}
+
+\begin{algorithm}
+\caption{Handle Reduced Weight($V$, $graphEdges$, $mstEdges$, $u$, $v$, $newWeight$)}
+\begin{algorithmic}[1]
+\State \textgreek{Αρχικοποίησε λίστα γειτνίασης} $adjList[0 \dots V-1] \gets \textgreek{Άδειες λίστες}$
+\ForAll{$e \in mstEdges$}
+    \State Add $(e.v, e)$ to $adjList[e.u]$ and $(e.u, e)$ to $adjList[e.v]$
+\EndFor
+
+\State \textgreek{Αρχικοποίησε πίνακες}: $visited[0 \dots V-1] \gets false$, $parent[0 \dots V-1] \gets -1$, $edgeToParent[0 \dots V-1] \gets \text{None}$
+
+\If{\textbf{not} \Call{DFS}{$u$, $v$, $adjList$, $visited$, $parent$, $edgeToParent$}}
+    \State \Return $mstEdges$
+\EndIf
+
+\State $curr \gets v$, $maxEdge \gets$ None
+\While{$curr \ne u$}
+    \State $edge \gets edgeToParent[curr]$
+    \If{$maxEdge = \text{None}$ \textbf{or} $edge.weight > maxEdge.weight$}
+        \State $maxEdge \gets edge$
+    \EndIf
+    \State $curr \gets parent[curr]$
+\EndWhile
+
+\If{$maxEdge \ne \text{None}$ \textbf{and} $maxEdge.weight > newWeight$}
+    \State $newMST \gets$ all edges in $mstEdges$ except $maxEdge$
+    \State Add edge $(u, v, newWeight)$ to $newMST$
+    \State \Return $newMST$
+\EndIf
+
+\State \Return $mstEdges$
+\end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}
+\caption{Update MST }
+\begin{algorithmic}[1]
+\State \textgreek{Είσοδος: }
+\State \quad \( V \) (\textgreek{Αριθμός Κορυφών})
+\State \quad \( \text{graph\_edges} \) \textgreek{Λίστα ακμών με τα βάρη τους}
+\State \quad \( \text{mst\_edges} \) \textgreek{Λίστα ακμών στο παρών ΕΕΔ}
+\State \quad \( u, v \) \textgreek{Κορυφές της ακμής που ενημερώνεται}
+\State \quad \( \text{new\_weight} \) \textgreek{ (Νέο βάρος της ακμής \( (u, v) \))}
+\State \textgreek{Έξοδος: } \textgreek{Λίστα με τις ακμές του ενημερωμένου ΕΕΔ}
+
+\State \( \text{old\_weight} \gets \text{None} \)
+\For{each edge \( e \in \text{graph\_edges} \)}
+    \If{(e.u == u and e.v == v) or (e.u == v and e.v == u)}
+        \State \( \text{old\_weight} \gets e.\text{weight} \)
+        \State \( e.\text{weight} \gets \text{new\_weight} \)
+        \State \textbf{break}
+    \EndIf
+\EndFor
+
+\If{\( \text{old\_weight} \) is \( \text{None} \)}
+    \State \text{return None}  \Comment{\textgreek{Η ενημερωμένη ακμή δεν βρέθηκε στον γράφο}}
+\EndIf
+
+\State \( \text{edge\_in\_mst} \gets \text{None} \)
+\For{each edge \( e \in \text{mst\_edges} \)}
+    \If{(e.u == u and e.v == v) or (e.u == v and e.v == u)}
+        \State \( \text{edge\_in\_mst} \gets e \)
+        \State \( e.\text{weight} \gets \text{new\_weight} \)
+        \State \textbf{break}
+    \EndIf
+\EndFor
+
+\If{edge\_in\_mst is not None and new\_weight \(>\) old\_weight}
+    \State \textbf{return} \texttt{handle\_weight\_increase}(V, graph\_edges, mst\_edges, edge\_in\_mst)
+\EndIf
+
+\If{edge\_in\_mst is None and new\_weight \(<\) old\_weight}
+    \State \textbf{return} \texttt{handle\_weight\_decrease}(V, graph\_edges, mst\_edges, u, v, new\_weight)
+\EndIf
+
+\State \textbf{return} mst\_edges
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+
+\section*{Exercise 4}
+
+\begin{algorithm}
+\caption{\begin{otherlanguage}{greek}Χρωματισμός Διαστημάτων με Ελάχιστα Χρώματα \end{otherlanguage}}
+\begin{algorithmic}[1]
+\State \begin{otherlanguage}{greek}Είσοδος: Πίνακας $Set = \{(l_i, r_i)\}_{i=1}^n$ από $n$ ανοιχτά διαστήματα.\end{otherlanguage}
+\State \begin{otherlanguage}{greek}Ταξινόμησε τα διαστήματα κατά αύξον $l_i$.\end{otherlanguage}
+\State \begin{otherlanguage}{greek}Αρχικοποίησε πίνακα $ColourArray[1 \ldots n] \gets 0$\end{otherlanguage}
+\State \begin{otherlanguage}{greek}Αρχικοποίησε κενό $set$ για διαθέσιμα χρώαματα $AvailableColours$\end{otherlanguage}
+\State \begin{otherlanguage}{greek}Αρχικοποίησε $CurrentColour \gets 1$\end{otherlanguage}
+\State \begin{otherlanguage}{greek}Αρχικοποίησε κενή \end{otherlanguage} priority queue $PQ$ \begin{otherlanguage}{greek} με στοιχεία της μορφής $(r_i, \text{χρώμα})$ ταξινομημένα κατά $r_i$\end{otherlanguage}
+\For{$i \gets 1$ \textbf{to} $n$}
+    \While{\begin{otherlanguage}{greek}$PQ$ δεν είναι κενή \textbf{και} $PQ.top().first \leq l_i$\end{otherlanguage}}
+        \State \begin{otherlanguage}{greek}Αφαίρεσε ($r$, χρώμα) από $PQ$\end{otherlanguage}
+        \State \begin{otherlanguage}{greek}Πρόσθεσε \textbf{χρώμα} στο $AvailableColours$\end{otherlanguage}
+    \EndWhile
+    \If{\begin{otherlanguage}{greek}υπάρχει διαθέσιμο χρώμα\end{otherlanguage}}
+        \State \begin{otherlanguage}{greek}Ανάθεσε στον πίνακα $ColourArray[i]$ ένα διαθέσιμο χρώμα από το $AvailableColours$\end{otherlanguage}
+    \Else
+        \State \begin{otherlanguage}{greek}$ColourArray[i] \gets CurrentColour$\end{otherlanguage}
+        \State \begin{otherlanguage}{greek}$CurrentColour \gets CurrentColour + 1$\end{otherlanguage}
+    \EndIf
+    \State \begin{otherlanguage}{greek}Προσθήκη $(r_i, ColourArray[i])$ στο $PQ$\end{otherlanguage}
+\EndFor
+\State \Return \begin{otherlanguage}{greek}$ColourArray[1 \ldots n]$\end{otherlanguage}
+\end{algorithmic}
+\end{algorithm}
+
+
+\subsection*{\begin{otherlanguage}{greek}Απόδειξη Ορθότητας και Πολυπλοκότητας Αλγορίθμου Χρωματισμού\end{otherlanguage}}
+
+\paragraph{\begin{otherlanguage}{greek}Ιδιότητες που πρέπει να αποδείξουμε:\end{otherlanguage}}
+
+\begin{otherlanguage}{greek}
+\begin{itemize}
+    \item[(1)] Ο αλγόριθμος δεν αναθέτει ποτέ το ίδιο χρώμα σε δύο επικαλυπτόμενα διαστήματα.
+    \item[(2)] Ο αριθμός χρωμάτων που χρησιμοποιούνται είναι ελάχιστος δυνατός.
+\end{itemize}
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Απόδειξη ιδιότητας (1):\end{otherlanguage}}\begin{otherlanguage}{greek} Κανένα δύο επικαλυπτόμενα διαστήματα δεν έχουν το ίδιο χρώμα.\end{otherlanguage}
+
+\begin{otherlanguage}{greek}
+Έστω ότι το διάστημα $I_i = (l_i, r_i)$ παίρνει ένα χρώμα $c$ από το σύνολο των διαθέσιμων χρωμάτων $AvailableColours$.
+
+Αυτό σημαίνει ότι το χρώμα $c$ είχε ανατεθεί σε κάποιο προηγούμενο διάστημα $I_j = (l_j, r_j)$, το οποίο όμως είχε ήδη αφαιρεθεί από την ουρά $PQ$ (άρα $r_j \leq l_i$), δηλαδή το $I_j$ έχει τελειώσει πριν ξεκινήσει το $I_i$.
+
+Επομένως, τα $I_j$ και $I_i$ δεν επικαλύπτονται, άρα είναι ασφαλές να χρησιμοποιήσουμε ξανά το ίδιο χρώμα $c$.
+
+Ομοίως, αν το $I_i$ λάβει νέο χρώμα $c$ (δεν υπάρχει διαθέσιμο), αυτό σημαίνει ότι επικαλύπτεται με όλα τα ενεργά διαστήματα που βρίσκονται στην $PQ$, τα οποία έχουν διαφορετικά χρώματα.
+
+Άρα, κανένα δύο επικαλυπτόμενα διαστήματα δεν έχουν το ίδιο χρώμα.
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Απόδειξη ιδιότητας (2):\end{otherlanguage} } \begin{otherlanguage}{greek} Ο αριθμός χρωμάτων είναι ελάχιστος.\end{otherlanguage}
+
+\begin{otherlanguage}{greek}
+Το πλήθος των χρωμάτων που χρησιμοποιούνται αντιστοιχεί στον μέγιστο αριθμό επικαλυπτόμενων διαστημάτων σε οποιοδήποτε χρονικό σημείο. Ο λόγος είναι ότι το χρώμα επαναχρησιμοποιείται αμέσως μόλις το αντίστοιχο διάστημα τελειώσει.
+
+Δηλαδή, ένα νέο χρώμα δημιουργείται μόνο όταν το τρέχον διάστημα επικαλύπτεται με όλα τα προηγούμενα "ενεργά" διαστήματα, και δεν υπάρχει κανένα χρώμα διαθέσιμο.
+
+\end{otherlanguage}
+
+\paragraph{\begin{otherlanguage}{greek}Συμπέρασμα:\end{otherlanguage}}
+
+\begin{otherlanguage}{greek}
+Ο αλγόριθμος αναθέτει έγκυρα χρώματα χωρίς επικαλύψεις, και χρησιμοποιεί τον ελάχιστο δυνατό αριθμό χρωμάτων για τη χρωμάτιση των διαστημάτων.
+\end{otherlanguage}
+
+
+\paragraph{\begin{otherlanguage}{greek}Πολυπλοκότητα:\end{otherlanguage}}
+
+\begin{otherlanguage}{greek}
+Αναλύουμε τα βήματα του αλγορίθμου:
+
+\begin{itemize}
+    \item Ταξινόμηση των $n$ διαστημάτων κατά $l_i$: $O(n \log n)$
+    \item Για κάθε διάστημα( $O(n)$ ):
+    \begin{itemize}
+        \item Εισαγωγή ή αφαίρεση από το \begin{otherlanguage}{english}priority queue: \end{otherlanguage} $O(\log n)$
+        \item Αναζήτηση/εκχώρηση χρώματος: $O(1)$ με διαχείριση διαθέσιμων χρωμάτων ($set$).
+    \end{itemize}
+\end{itemize}
+
+Άρα $O(nlogn)$
+
+\textbf{Συνολικά:} $O(n \log n) + O(n \log n) = O(n \log n)$ λόγω της ταξινόμησης και των προσθηκών/αφαιρέσεων στη ουρά προτεραιότητας ανά διάστημα.
+
+\paragraph{Βέλτιστοτητα:} Ο αλγόριθμος είναι βέλτιστος για τα διαστηματά μας, καθώς ο ελάχιστος αριθμός χρωμάτων είναι ίσος με τη μέγιστη ταυτόχρονη επικάλυψη, κάτι που επιτυγχάνεται εδώ.
+\end{otherlanguage}
+
+
+
+\end{document}
