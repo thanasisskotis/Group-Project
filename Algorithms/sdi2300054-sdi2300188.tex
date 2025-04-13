@@ -10,6 +10,10 @@
 \author{}
 \date{}
 
+\textgreek{Μέλη Ομάδας: }
+\item \textgreek{Ιγγλεζάκης Αναστάσιος - 1115202300054}
+\item \textgreek{Σκότης Αθανάσιος - 1115202300188}
+
 \section*{Exercise 1}
 \section*{\textgreek{Περιγραφή Αλγορίθμου: }}
 \begin{enumerate}
@@ -34,13 +38,13 @@
 
 \section*{\textgreek{Ψευδοκώδικας:}}
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \caption{\textgreek{Συντομότερος Κατευθυνόμενος Κύκλος}}
 \begin{algorithmic}[1]
 \Statex \textgreek{Είσοδος: Γράφος $G = (V, A)$ με θετικά βάρη $w(u, v)$}
-\Statex \textgreek{Έξοδος: Μήκος του συντομότερου κατευθυνόμενου κύκλου ή \texttt{None} αν δεν υπάρχει κύκλος}
+\Statex \textgreek{Έξοδος: Μήκος του συντομότερου κατευθυνόμενου κύκλου ή $None$ αν δεν υπάρχει κύκλος}
 
-\State Αρχικοποίησε τον πίνακα \texttt{dist[$n$][$n$]} ως εξής:
+\State \textgreek{Αρχικοποίησε τον πίνακα} \texttt{dist[$n$][$n$]} \textgreek{ως εξής}:
 \ForAll{$i, j \in V$}
     \If{$i = j$}
         \State \texttt{dist[$i$][$j$]} $\gets 0$
@@ -152,11 +156,11 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 
 \section*{Exercise 2}
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \caption{\begin{otherlanguage}{greek}Βρες την Ειδική Κορυφή σε $O(n)$\end{otherlanguage}}
 \begin{algorithmic}[1]
-\State \textbf{\begin{otherlanguage}{greek}Είσοδος:\end{otherlanguage}} \begin{otherlanguage}{greek}Γράφημα $G$ (ως \end{otherlanguage} adjacency matrix \begin{otherlanguage}{greek}) με $n$ κορυφές και συνάρτηση \texttt{γνωρίζει$(u, v)$} που επιστρέφει \texttt{True} αν υπάρχει ακμή από $u$ προς $v$.\end{otherlanguage}
-\State \textbf{\begin{otherlanguage}{greek}Έξοδος:\end{otherlanguage}} \begin{otherlanguage}{greek}\texttt{True} αν υπάρχει ειδική κορυφή, αλλιώς \texttt{False}.\end{otherlanguage}
+\State \textbf{\begin{otherlanguage}{greek}Είσοδος:\end{otherlanguage}} \begin{otherlanguage}{greek}Γράφημα $G$ (ως \end{otherlanguage} adjacency matrix \begin{otherlanguage}{greek}) με $n$ κορυφές και συνάρτηση \texttt{γνωρίζει$(u, v)$} που επιστρέφει $True$ αν υπάρχει ακμή από $u$ προς $v$.\end{otherlanguage}
+\State \textbf{\begin{otherlanguage}{greek}Έξοδος:\end{otherlanguage}} \begin{otherlanguage}{greek} $True$ αν υπάρχει ειδική κορυφή, αλλιώς $False$.\end{otherlanguage}
 \State
 
 \State \textbf{\begin{otherlanguage}{greek}Βήμα 1: Επιλογή υποψηφίου\end{otherlanguage}}
@@ -223,7 +227,7 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 
 \section*{Exercise 3}
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \caption{Find Path Between Two Vertices in MST (BFS)}
 \begin{algorithmic}[1]
 \Function{find\_path}{start, end}
@@ -253,8 +257,8 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 \end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}
-\caption{Handle Weight Increase}
+\begin{algorithm}[H]
+\caption{handle\_weight\_increase}
 \begin{algorithmic}[1]
 \State \textgreek{Είσοδος: } \( V, \text{graph\_edges}, \text{mst\_edges}, \text{edge\_to\_remove} \)
 \State \textgreek{Έξοδος: } \textgreek{Λίστα με ακμές ενημερωμένου ΕΕΔ}
@@ -272,7 +276,7 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 
 \For{i = 0 to V-1}
     \If{visited[i] is False}
-        \State \text{bfs(i, comp\_id)}  \Comment{\textgreek{\(bfs\) για να βρούμε τις συνιστώσες}}
+        \State \text{FIND\_PATH(i, comp\_id)}  \Comment{\textgreek{\(bfs\) για να βρούμε τις συνιστώσες}}
         \State comp\_id \(\gets\) comp\_id + 1
     \EndIf
 \EndFor
@@ -299,7 +303,7 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 \end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \caption{DFS}
 \begin{algorithmic}[1]
 \Procedure{DFS}{$node$, $target$, $adjList$, $visited$, $parent$, $edgeToParent$}
@@ -323,8 +327,8 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 
 \vspace{1em}
 
-\begin{algorithm}
-\caption{Handle Reduced Weight($V$, $graphEdges$, $mstEdges$, $u$, $v$, $newWeight$)}
+\begin{algorithm}[H]
+\caption{handle\_weight\_decrease($V$, $graphEdges$, $mstEdges$, $u$, $v$, $newWeight$)}
 \begin{algorithmic}[1]
 \State \textgreek{Αρχικοποίησε λίστα γειτνίασης} $adjList[0 \dots V-1] \gets \textgreek{Άδειες λίστες}$
 \ForAll{$e \in mstEdges$}
@@ -357,7 +361,7 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 \end{algorithm}
 
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \caption{Update MST }
 \begin{algorithmic}[1]
 \State \textgreek{Είσοδος: }
@@ -408,7 +412,7 @@ T(n) = \sum_{k=1}^{n} \sum_{i=1}^{n} \sum_{j=1}^{n} O(1) + \sum_{v=1}^{n} O(1) =
 
 \section*{Exercise 4}
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \caption{\begin{otherlanguage}{greek}Χρωματισμός Διαστημάτων με Ελάχιστα Χρώματα \end{otherlanguage}}
 \begin{algorithmic}[1]
 \State \begin{otherlanguage}{greek}Είσοδος: Πίνακας $Set = \{(l_i, r_i)\}_{i=1}^n$ από $n$ ανοιχτά διαστήματα.\end{otherlanguage}
